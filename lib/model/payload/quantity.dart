@@ -1,6 +1,4 @@
-import 'device.dart';
 import 'sample.dart';
-import 'source_revision.dart';
 
 /// Equivalent of [Quantity]
 /// from [HealthKitReporter] https://cocoapods.org/pods/HealthKitReporter
@@ -15,22 +13,14 @@ import 'source_revision.dart';
 ///
 class Quantity extends Sample<QuantityHarmonized> {
   const Quantity(
-    String uuid,
-    String identifier,
-    num startTimestamp,
-    num endTimestamp,
-    Device? device,
-    SourceRevision sourceRevision,
-    QuantityHarmonized harmonized,
-  ) : super(
-          uuid,
-          identifier,
-          startTimestamp,
-          endTimestamp,
-          device,
-          sourceRevision,
-          harmonized,
-        );
+    super.uuid,
+    super.identifier,
+    super.startTimestamp,
+    super.endTimestamp,
+    super.device,
+    super.sourceRevision,
+    super.harmonized,
+  );
 
   /// General map representation
   ///
@@ -47,8 +37,7 @@ class Quantity extends Sample<QuantityHarmonized> {
 
   /// General constructor from JSON payload
   ///
-  Quantity.fromJson(Map<String, dynamic> json)
-      : super.from(json, QuantityHarmonized.fromJson(json['harmonized']));
+  Quantity.fromJson(Map<String, dynamic> json) : super.from(json, QuantityHarmonized.fromJson(json['harmonized']));
 
   /// Simplifies creating a list of objects from JSON payload.
   ///

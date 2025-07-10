@@ -1,10 +1,8 @@
 import 'package:health_kit_reporter/model/type/correlation_type.dart';
 
 import 'category.dart';
-import 'device.dart';
 import 'quantity.dart';
 import 'sample.dart';
-import 'source_revision.dart';
 
 /// Equivalent of [Correlation]
 /// from [HealthKitReporter] https://cocoapods.org/pods/HealthKitReporter
@@ -18,22 +16,14 @@ import 'source_revision.dart';
 ///
 class Correlation extends Sample<CorrelationHarmonized> {
   const Correlation(
-    String uuid,
-    String identifier,
-    num startTimestamp,
-    num endTimestamp,
-    Device? device,
-    SourceRevision sourceRevision,
-    CorrelationHarmonized harmonized,
-  ) : super(
-          uuid,
-          identifier,
-          startTimestamp,
-          endTimestamp,
-          device,
-          sourceRevision,
-          harmonized,
-        );
+    super.uuid,
+    super.identifier,
+    super.startTimestamp,
+    super.endTimestamp,
+    super.device,
+    super.sourceRevision,
+    super.harmonized,
+  );
 
   /// General constructor from JSON payload
   ///

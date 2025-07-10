@@ -1,8 +1,6 @@
 import 'package:health_kit_reporter/model/type/workout_type.dart';
 
-import 'device.dart';
 import 'sample.dart';
-import 'source_revision.dart';
 
 /// Equivalent of [WorkoutRoute]
 /// from [HealthKitReporter] https://cocoapods.org/pods/HealthKitReporter
@@ -16,22 +14,14 @@ import 'source_revision.dart';
 ///
 class WorkoutRoute extends Sample<WorkoutRouteHarmonized> {
   const WorkoutRoute(
-    String uuid,
-    String identifier,
-    num startTimestamp,
-    num endTimestamp,
-    Device? device,
-    SourceRevision sourceRevision,
-    WorkoutRouteHarmonized harmonized,
-  ) : super(
-          uuid,
-          identifier,
-          startTimestamp,
-          endTimestamp,
-          device,
-          sourceRevision,
-          harmonized,
-        );
+    super.uuid,
+    super.identifier,
+    super.startTimestamp,
+    super.endTimestamp,
+    super.device,
+    super.sourceRevision,
+    super.harmonized,
+  );
 
   /// General map representation
   ///

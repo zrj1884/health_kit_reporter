@@ -6,6 +6,7 @@ import 'package:health_kit_reporter/model/payload/date_components.dart';
 import 'package:health_kit_reporter/model/payload/preferred_unit.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/update_frequency.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'action_card.dart';
 import 'monitor_status.dart';
@@ -13,9 +14,9 @@ import 'reporter_mixin.dart';
 
 class ObserveView extends StatefulWidget {
   const ObserveView({
-    Key? key,
+    super.key,
     required this.flutterLocalNotificationsPlugin,
-  }) : super(key: key);
+  });
 
   final dynamic flutterLocalNotificationsPlugin;
 
@@ -44,7 +45,11 @@ class _ObserveViewState extends State<ObserveView> with HealthKitReporterMixin {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: MediaQuery.paddingOf(context).bottom,
+            ),
             children: [
               ActionCard(
                 icon: Icons.monitor_heart,
@@ -112,9 +117,9 @@ class _ObserveViewState extends State<ObserveView> with HealthKitReporterMixin {
       _currentSubscription = HealthKitReporter.observerQuery(identifiers, null, onUpdate: (identifier) async {
         _addObservation('观察到 $identifier 数据更新');
         // 暂时注释掉通知功能，因为导入有问题
-        // const iOSDetails = DarwinNotificationDetails();
-        // const details = NotificationDetails(iOS: iOSDetails);
-        // await widget.flutterLocalNotificationsPlugin.show(0, '健康数据更新', identifier, details);
+        const iOSDetails = DarwinNotificationDetails();
+        const details = NotificationDetails(iOS: iOSDetails);
+        await widget.flutterLocalNotificationsPlugin.show(0, '健康数据更新', identifier, details);
       });
 
       for (final identifier in identifiers) {

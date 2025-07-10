@@ -7,12 +7,12 @@ class ResultDisplay extends StatelessWidget {
   final String placeholder;
 
   const ResultDisplay({
-    Key? key,
+    super.key,
     required this.title,
     this.result,
     this.isLoading = false,
     required this.placeholder,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

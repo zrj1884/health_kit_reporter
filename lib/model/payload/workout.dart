@@ -1,9 +1,7 @@
 import 'package:health_kit_reporter/model/payload/workout_activity_type.dart';
 
 import '../type/workout_type.dart';
-import 'device.dart';
 import 'sample.dart';
-import 'source_revision.dart';
 import 'workout_event.dart';
 
 /// Equivalent of [Workout]
@@ -18,24 +16,16 @@ import 'workout_event.dart';
 ///
 class Workout extends Sample<WorkoutHarmonized> {
   const Workout(
-    String uuid,
-    String identifier,
-    num startTimestamp,
-    num endTimestamp,
-    Device? device,
-    SourceRevision sourceRevision,
-    WorkoutHarmonized harmonized,
+    super.uuid,
+    super.identifier,
+    super.startTimestamp,
+    super.endTimestamp,
+    super.device,
+    super.sourceRevision,
+    super.harmonized,
     this.duration,
     this.workoutEvents,
-  ) : super(
-          uuid,
-          identifier,
-          startTimestamp,
-          endTimestamp,
-          device,
-          sourceRevision,
-          harmonized,
-        );
+  );
 
   final num duration;
   final List<WorkoutEvent> workoutEvents;

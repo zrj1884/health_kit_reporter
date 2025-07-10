@@ -1,6 +1,4 @@
-import 'package:health_kit_reporter/model/payload/device.dart';
 import 'package:health_kit_reporter/model/payload/sample.dart';
-import 'package:health_kit_reporter/model/payload/source_revision.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/type/series_type.dart';
 
@@ -18,22 +16,14 @@ import 'package:health_kit_reporter/model/type/series_type.dart';
 ///
 class HeartbeatSeries extends Sample<HeartbeatSeriesHarmonized> {
   const HeartbeatSeries(
-    String uuid,
-    String identifier,
-    num startTimestamp,
-    num endTimestamp,
-    Device? device,
-    SourceRevision sourceRevision,
-    HeartbeatSeriesHarmonized harmonized,
-  ) : super(
-          uuid,
-          identifier,
-          startTimestamp,
-          endTimestamp,
-          device,
-          sourceRevision,
-          harmonized,
-        );
+    super.uuid,
+    super.identifier,
+    super.startTimestamp,
+    super.endTimestamp,
+    super.device,
+    super.sourceRevision,
+    super.harmonized,
+  );
 
   /// General map representation
   ///
@@ -51,8 +41,7 @@ class HeartbeatSeries extends Sample<HeartbeatSeriesHarmonized> {
   /// General constructor from JSON payload
   ///
   HeartbeatSeries.fromJson(Map<String, dynamic> json)
-      : super.from(
-            json, HeartbeatSeriesHarmonized.fromJson(json['harmonized']));
+      : super.from(json, HeartbeatSeriesHarmonized.fromJson(json['harmonized']));
 }
 
 /// Equivalent of [HeartbeatSeries.Harmonized]

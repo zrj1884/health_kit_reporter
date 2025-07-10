@@ -5,10 +5,10 @@ class MonitorStatus extends StatelessWidget {
   final String? latestUpdate;
 
   const MonitorStatus({
-    Key? key,
+    super.key,
     required this.isObserving,
     this.latestUpdate,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

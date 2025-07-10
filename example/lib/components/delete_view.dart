@@ -11,7 +11,7 @@ import 'result_display.dart';
 import 'warning_display.dart';
 
 class DeleteView extends StatefulWidget {
-  const DeleteView({Key? key}) : super(key: key);
+  const DeleteView({super.key});
 
   @override
   State<DeleteView> createState() => _DeleteViewState();
@@ -37,7 +37,11 @@ class _DeleteViewState extends State<DeleteView> with HealthKitReporterMixin {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: MediaQuery.paddingOf(context).bottom,
+            ),
             children: [
               ActionCard(
                 icon: Icons.delete_forever,

@@ -19,7 +19,7 @@ import 'action_card.dart';
 import 'result_display.dart';
 
 class WriteView extends StatefulWidget {
-  const WriteView({Key? key}) : super(key: key);
+  const WriteView({super.key});
 
   @override
   State<WriteView> createState() => _WriteViewState();
@@ -41,7 +41,11 @@ class _WriteViewState extends State<WriteView> with HealthKitReporterMixin {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: MediaQuery.paddingOf(context).bottom,
+            ),
             children: [
               ActionCard(
                 icon: Icons.directions_walk,

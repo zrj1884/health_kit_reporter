@@ -1,8 +1,6 @@
 import 'package:health_kit_reporter/model/type/electrocardiogram_type.dart';
 
-import 'device.dart';
 import 'sample.dart';
-import 'source_revision.dart';
 
 /// Equivalent of [Electrocardiogram]
 /// from [HealthKitReporter] https://cocoapods.org/pods/HealthKitReporter
@@ -16,23 +14,15 @@ import 'source_revision.dart';
 ///
 class Electrocardiogram extends Sample<ElectrocardiogramHarmonized> {
   const Electrocardiogram(
-    String uuid,
-    String identifier,
-    num startTimestamp,
-    num endTimestamp,
-    Device? device,
-    SourceRevision sourceRevision,
-    ElectrocardiogramHarmonized harmonized,
+    super.uuid,
+    super.identifier,
+    super.startTimestamp,
+    super.endTimestamp,
+    super.device,
+    super.sourceRevision,
+    super.harmonized,
     this.numberOfMeasurements,
-  ) : super(
-          uuid,
-          identifier,
-          startTimestamp,
-          endTimestamp,
-          device,
-          sourceRevision,
-          harmonized,
-        );
+  );
 
   final int numberOfMeasurements;
 
@@ -54,8 +44,7 @@ class Electrocardiogram extends Sample<ElectrocardiogramHarmonized> {
   ///
   Electrocardiogram.fromJson(Map<String, dynamic> json)
       : numberOfMeasurements = json['numberOfMeasurements'],
-        super.from(
-            json, ElectrocardiogramHarmonized.fromJson(json['harmonized']));
+        super.from(json, ElectrocardiogramHarmonized.fromJson(json['harmonized']));
 }
 
 /// Equivalent of [Electrocardiogram.Harmonized]
@@ -113,8 +102,7 @@ class ElectrocardiogramHarmonized {
         classification = json['classification'],
         symptomsStatus = json['symptomsStatus'],
         count = json['count'],
-        voltageMeasurements = ElectrocardiogramVoltageMeasurement.collect(
-            json['voltageMeasurements']),
+        voltageMeasurements = ElectrocardiogramVoltageMeasurement.collect(json['voltageMeasurements']),
         metadata = json['metadata'];
 }
 
@@ -145,8 +133,7 @@ class ElectrocardiogramVoltageMeasurement {
   /// General constructor from JSON payload
   ///
   ElectrocardiogramVoltageMeasurement.fromJson(Map<String, dynamic> json)
-      : harmonized = ElectrocardiogramVoltageMeasurementHarmonized.fromJson(
-            json['harmonized']),
+      : harmonized = ElectrocardiogramVoltageMeasurementHarmonized.fromJson(json['harmonized']),
         timeSinceSampleStart = json['timeSinceSampleStart'];
 
   /// Simplifies creating a list of objects from JSON payload.
@@ -187,8 +174,7 @@ class ElectrocardiogramVoltageMeasurementHarmonized {
 
   /// General constructor from JSON payload
   ///
-  ElectrocardiogramVoltageMeasurementHarmonized.fromJson(
-      Map<String, dynamic> json)
+  ElectrocardiogramVoltageMeasurementHarmonized.fromJson(Map<String, dynamic> json)
       : value = json['value'],
         unit = json['unit'];
 }

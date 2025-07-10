@@ -13,7 +13,7 @@ import 'action_card.dart';
 import 'result_display.dart';
 
 class ReadView extends StatefulWidget {
-  const ReadView({Key? key}) : super(key: key);
+  const ReadView({super.key});
 
   @override
   State<ReadView> createState() => _ReadViewState();
@@ -35,7 +35,11 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: MediaQuery.paddingOf(context).bottom,
+            ),
             children: [
               ActionCard(
                 icon: Icons.favorite,
@@ -110,6 +114,10 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
     });
   }
 
+  DateTime _convertToDateTime(num timestamp) {
+    return DateTime.fromMillisecondsSinceEpoch((timestamp * 1000).toInt());
+  }
+
   Future<void> _queryHeartRate() async {
     _setLoading(true);
     try {
@@ -120,7 +128,7 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
       if (quantities.isNotEmpty) {
         final latest = quantities.first;
         _updateResult('最新心率: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
-            '时间: ${DateTime.fromMillisecondsSinceEpoch(latest.startTimestamp as int)}\n'
+            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
             '数据点数量: ${quantities.length}');
       } else {
         _updateResult('未找到心率数据');
@@ -140,8 +148,8 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
         final totalSteps = samples.fold<int>(0, (sum, sample) => sum + (sample.harmonized.value as int));
         _updateResult('总步数: $totalSteps\n'
             '数据点数量: ${samples.length}\n'
-            '时间范围: ${DateTime.fromMillisecondsSinceEpoch(samples.last.startTimestamp as int)} - '
-            '${DateTime.fromMillisecondsSinceEpoch(samples.first.endTimestamp as int)}');
+            '时间范围: ${_convertToDateTime(samples.last.startTimestamp)} - '
+            '${_convertToDateTime(samples.first.endTimestamp)}');
       } else {
         _updateResult('未找到步数数据');
       }
@@ -158,7 +166,7 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
       final categories = await HealthKitReporter.categoryQuery(CategoryType.sleepAnalysis, predicate);
       if (categories.isNotEmpty) {
         _updateResult('睡眠记录数量: ${categories.length}\n'
-            '最新记录: ${DateTime.fromMillisecondsSinceEpoch(categories.first.startTimestamp as int)}\n'
+            '最新记录: ${_convertToDateTime(categories.first.startTimestamp)}\n'
             '睡眠类型: ${categories.first.harmonized.value}');
       } else {
         _updateResult('未找到睡眠数据');
@@ -220,7 +228,7 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
           await HealthKitReporter.electrocardiogramQuery(predicate, withVoltageMeasurements: true);
       if (electrocardiograms.isNotEmpty) {
         _updateResult('心电图记录数量: ${electrocardiograms.length}\n'
-            '最新记录: ${DateTime.fromMillisecondsSinceEpoch(electrocardiograms.first.startTimestamp as int)}');
+            '最新记录: ${_convertToDateTime(electrocardiograms.first.startTimestamp)}');
       } else {
         _updateResult('未找到心电图数据');
       }
@@ -238,7 +246,7 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
           await HealthKitReporter.correlationQuery(CorrelationType.bloodPressure.identifier, predicate);
       if (correlations.isNotEmpty) {
         _updateResult('血压记录数量: ${correlations.length}\n'
-            '最新记录: ${DateTime.fromMillisecondsSinceEpoch(correlations.first.startTimestamp as int)}');
+            '最新记录: ${_convertToDateTime(correlations.first.startTimestamp)}');
       } else {
         _updateResult('未找到血压数据');
       }
