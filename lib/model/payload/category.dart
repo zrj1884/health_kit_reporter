@@ -1,6 +1,4 @@
-import 'device.dart';
 import 'sample.dart';
-import 'source_revision.dart';
 
 /// Equivalent of [Category]
 /// from [HealthKitReporter] https://cocoapods.org/pods/HealthKitReporter
@@ -15,22 +13,14 @@ import 'source_revision.dart';
 ///
 class Category extends Sample<CategoryHarmonized> {
   const Category(
-    String uuid,
-    String identifier,
-    num startTimestamp,
-    num endTimestamp,
-    Device? device,
-    SourceRevision sourceRevision,
-    CategoryHarmonized harmonized,
-  ) : super(
-          uuid,
-          identifier,
-          startTimestamp,
-          endTimestamp,
-          device,
-          sourceRevision,
-          harmonized,
-        );
+    super.uuid,
+    super.identifier,
+    super.startTimestamp,
+    super.endTimestamp,
+    super.device,
+    super.sourceRevision,
+    super.harmonized,
+  );
 
   /// General map representation
   ///
@@ -47,8 +37,7 @@ class Category extends Sample<CategoryHarmonized> {
 
   /// General constructor from JSON payload
   ///
-  Category.fromJson(Map<String, dynamic> json)
-      : super.from(json, CategoryHarmonized.fromJson(json['harmonized']));
+  Category.fromJson(Map<String, dynamic> json) : super.from(json, CategoryHarmonized.fromJson(json['harmonized']));
 
   /// Simplifies creating a list of objects from JSON payload.
   ///
