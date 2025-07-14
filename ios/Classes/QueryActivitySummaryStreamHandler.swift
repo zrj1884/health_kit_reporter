@@ -52,10 +52,14 @@ extension QueryActivitySummaryStreamHandler: StreamHandlerProtocol {
             guard error == nil else {
                 return
             }
-            do {
-                events(try activitySummaries.encoded())
-            } catch {
-                events(nil)
+            
+            // 确保在主线程上发送消息到Flutter
+            DispatchQueue.main.async {
+                do {
+                    events(try activitySummaries.encoded())
+                } catch {
+                    events(nil)
+                }
             }
         }
         plannedQueries.insert(query)

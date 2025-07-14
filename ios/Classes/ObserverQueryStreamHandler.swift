@@ -48,7 +48,10 @@ extension ObserverQueryStreamHandler: StreamHandlerProtocol {
                 else {
                     return
                 }
-                events(["identifier": identifier])
+                // 确保在主线程上发送消息到Flutter
+                DispatchQueue.main.async {
+                    events(["identifier": identifier])
+                }
             }
             plannedQueries.insert(query)
         }

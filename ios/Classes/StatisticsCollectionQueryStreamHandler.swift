@@ -59,10 +59,14 @@ extension StatisticsCollectionQueryStreamHandler: StreamHandlerProtocol {
                     else {
                         return
                     }
-                    do {
-                        events(try statistics.encoded())
-                    } catch {
-                        events(nil)
+                    
+                    // 确保在主线程上发送消息到Flutter
+                    DispatchQueue.main.async {
+                        do {
+                            events(try statistics.encoded())
+                        } catch {
+                            events(nil)
+                        }
                     }
                 }
                 plannedQueries.insert(query)

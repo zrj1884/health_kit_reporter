@@ -64,7 +64,10 @@ extension AnchoredObjectQueryStreamHandler: StreamHandlerProtocol {
                 }
                 jsonDictionary["samples"] = samplesArray
                 jsonDictionary["deletedObjects"] = deletedObjectsArray
-                events(jsonDictionary)
+                // 确保在主线程上发送消息到Flutter
+                DispatchQueue.main.async {
+                    events(jsonDictionary)
+                }
             }
             plannedQueries.insert(query)
         }
