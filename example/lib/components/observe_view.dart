@@ -97,8 +97,11 @@ class _ObserveViewState extends State<ObserveView> with HealthKitReporterMixin {
   }
 
   void _addObservation(String observation) {
+    final msg = '${DateTime.now().toString().substring(11, 19)} - $observation';
+    debugPrint(msg);
+
     setState(() {
-      _observations.insert(0, '${DateTime.now().toString().substring(11, 19)} - $observation');
+      _observations.insert(0, msg);
       if (_observations.length > 10) {
         _observations.removeLast();
       }
@@ -116,7 +119,7 @@ class _ObserveViewState extends State<ObserveView> with HealthKitReporterMixin {
 
       _currentSubscription = HealthKitReporter.observerQuery(identifiers, null, onUpdate: (identifier) async {
         _addObservation('观察到 $identifier 数据更新');
-        // 暂时注释掉通知功能，因为导入有问题
+
         const iOSDetails = DarwinNotificationDetails();
         const details = NotificationDetails(iOS: iOSDetails);
         await widget.flutterLocalNotificationsPlugin.show(0, '健康数据更新', identifier, details);
@@ -181,9 +184,9 @@ class _ObserveViewState extends State<ObserveView> with HealthKitReporterMixin {
       // 取消之前的订阅
       _currentSubscription?.cancel();
 
-      final anchorDate = DateTime.utc(2020, 2, 1, 12, 30, 30);
-      final enumerateFrom = DateTime.utc(2020, 3, 1, 12, 30, 30);
-      final enumerateTo = DateTime.utc(2020, 12, 31, 12, 30, 30);
+      final anchorDate = DateTime.utc(2025, 2, 1, 12, 30, 30);
+      final enumerateFrom = DateTime.utc(2025, 3, 1, 12, 30, 30);
+      final enumerateTo = DateTime.utc(2025, 7, 31, 12, 30, 30);
       const intervalComponents = DateComponents(month: 1);
 
       _currentSubscription = HealthKitReporter.statisticsCollectionQuery(

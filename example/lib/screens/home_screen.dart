@@ -22,15 +22,17 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isAuthorized = false;
   bool _isClinicalAuthorized = false;
+  late TabController _tabController;
 
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 4, vsync: this);
 
     // 初始化通知插件
     const initializationSettingsIOS = DarwinInitializationSettings();
@@ -43,60 +45,77 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: AuthButton(
-            icon: Icons.health_and_safety,
-            tooltip: '授权健康数据访问',
-            isAuthorized: _isAuthorized,
-            onPressed: () => _authorize(),
+    return Scaffold(
+      appBar: AppBar(
+        leading: AuthButton(
+          icon: Icons.health_and_safety,
+          tooltip: '授权健康数据访问',
+          isAuthorized: _isAuthorized,
+          onPressed: () => _authorize(),
+        ),
+        title: const Text(
+          'HealthKit 数据管理器',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          AuthButton(
+            icon: Icons.medical_services,
+            tooltip: '授权临床记录访问',
+            isAuthorized: _isClinicalAuthorized,
+            onPressed: () => _authorizeClinicalRecords(),
           ),
-          title: const Text(
-            'HealthKit 数据管理器',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          actions: [
-            AuthButton(
-              icon: Icons.medical_services,
-              tooltip: '授权临床记录访问',
-              isAuthorized: _isClinicalAuthorized,
-              onPressed: () => _authorizeClinicalRecords(),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(
+              icon: Icon(Icons.visibility),
+              text: '数据读取',
+            ),
+            Tab(
+              icon: Icon(Icons.edit_note),
+              text: '数据写入',
+            ),
+            Tab(
+              icon: Icon(Icons.monitor_heart),
+              text: '实时监控',
+            ),
+            Tab(
+              icon: Icon(Icons.delete_forever),
+              text: '数据删除',
             ),
           ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(
-                icon: Icon(Icons.visibility),
-                text: '数据读取',
-              ),
-              Tab(
-                icon: Icon(Icons.edit_note),
-                text: '数据写入',
-              ),
-              Tab(
-                icon: Icon(Icons.monitor_heart),
-                text: '实时监控',
-              ),
-              Tab(
-                icon: Icon(Icons.delete_forever),
-                text: '数据删除',
-              ),
-            ],
-          ),
         ),
-        body: TabBarView(
-          children: [
-            const ReadView(),
-            const WriteView(),
-            ObserveView(
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _LazyTabView(
+            index: 0,
+            child: const ReadView(),
+          ),
+          _LazyTabView(
+            index: 1,
+            child: const WriteView(),
+          ),
+          _LazyTabView(
+            index: 2,
+            child: ObserveView(
               flutterLocalNotificationsPlugin: _flutterLocalNotificationsPlugin,
             ),
-            const DeleteView(),
-          ],
-        ),
+          ),
+          _LazyTabView(
+            index: 3,
+            child: const DeleteView(),
+          ),
+        ],
       ),
     );
   }
@@ -182,5 +201,31 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     }
+  }
+}
+
+/// 延迟加载的Tab视图组件
+/// 实现AutomaticKeepAliveClientMixin来保持状态
+class _LazyTabView extends StatefulWidget {
+  final int index;
+  final Widget child;
+
+  const _LazyTabView({
+    required this.index,
+    required this.child,
+  });
+
+  @override
+  State<_LazyTabView> createState() => _LazyTabViewState();
+}
+
+class _LazyTabViewState extends State<_LazyTabView> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // 必须调用super.build
+    return widget.child;
   }
 }
