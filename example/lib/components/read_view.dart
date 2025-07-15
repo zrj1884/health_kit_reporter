@@ -84,6 +84,12 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
                 onTap: () => _queryBloodPressure(),
               ),
               ActionCard(
+                icon: Icons.air,
+                title: '血氧饱和度',
+                subtitle: '查询用户血氧饱和度数据',
+                onTap: () => _queryOxygenSaturation(),
+              ),
+              ActionCard(
                 icon: Icons.analytics,
                 title: '活动摘要',
                 subtitle: '查询用户活动摘要数据',
@@ -279,6 +285,30 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
     try {
       final characteristics = await HealthKitReporter.characteristicsQuery();
       _updateResult('个人特征数据:\n${characteristics.map}');
+    } catch (e) {
+      _updateResult('查询失败: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> _queryOxygenSaturation() async {
+    _setLoading(true);
+    try {
+      final preferredUnits = await HealthKitReporter.preferredUnits([QuantityType.oxygenSaturation]);
+      final o2Units = preferredUnits.first.unit;
+      final quantities = await HealthKitReporter.quantityQuery(QuantityType.oxygenSaturation, o2Units, predicate);
+
+      if (quantities.isNotEmpty) {
+        final latest = quantities.first;
+        final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
+        _updateResult('最新血氧饱和度: ${latest.harmonized.value.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
+            '平均血氧饱和度: ${averageValue.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
+            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+            '数据点数量: ${quantities.length}');
+      } else {
+        _updateResult('未找到血氧饱和度数据');
+      }
     } catch (e) {
       _updateResult('查询失败: $e');
     } finally {
