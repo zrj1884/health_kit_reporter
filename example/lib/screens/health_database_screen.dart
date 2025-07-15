@@ -428,7 +428,8 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('确认删除'),
-        content: Text('确定要删除这条记录吗？\n${_getIdentifierDisplayName(record.identifier)}: ${_formatValue(record.value)}'),
+        content: Text(
+            '确定要删除这条记录吗？\n${_getIdentifierDisplayName(record.identifier)}: ${_formatValue(record.value, record.unit)}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -697,7 +698,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          '${_formatValue(record.value)} ${record.unit}',
+                                          _formatValue(record.value, record.unit),
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.grey.shade700,
@@ -867,29 +868,36 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   }
 
   /// 格式化数值显示，控制浮点数精度
-  String _formatValue(dynamic value) {
-    if (value == null) return '0';
+  String _formatValue(dynamic value, String unit) {
+    if (value == null) return '0$unit';
 
     // 如果是字符串，尝试转换为数字
     if (value is String) {
       try {
-        final numValue = double.tryParse(value);
+        double? numValue = double.tryParse(value);
         if (numValue != null) {
-          return _formatNumber(numValue);
+          if (unit == '%') {
+            numValue = numValue * 100;
+          }
+          return '${_formatNumber(numValue)}$unit';
         }
-        return value; // 如果无法转换，直接返回原字符串
+        return '$value$unit'; // 如果无法转换，直接返回原字符串
       } catch (e) {
-        return value;
+        return '$value$unit';
       }
     }
 
     // 如果是数字类型
     if (value is num) {
-      return _formatNumber(value.toDouble());
+      num numValue = value;
+      if (unit == '%') {
+        numValue = numValue * 100;
+      }
+      return '${_formatNumber(numValue.toDouble())}$unit';
     }
 
     // 其他类型直接转换为字符串
-    return value.toString();
+    return '$value$unit';
   }
 
   /// 格式化数字，限制小数点后3位

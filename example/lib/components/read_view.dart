@@ -302,8 +302,8 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
       if (quantities.isNotEmpty) {
         final latest = quantities.first;
         final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
-        _updateResult('最新血氧饱和度: ${latest.harmonized.value.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
-            '平均血氧饱和度: ${averageValue.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
+        _updateResult('最新血氧饱和度: ${(latest.harmonized.value * 100)}%\n'
+            '平均血氧饱和度: ${(averageValue * 100)}%\n'
             '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
             '数据点数量: ${quantities.length}');
       } else {
