@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../models/health_record.dart';
 import '../services/health_sync_service.dart';
+import '../services/health_icon_service.dart';
+import '../components/ios_snackbar.dart';
+import 'statistics_screen.dart';
+import 'health_filter_screen.dart';
 
 class HealthDatabaseScreen extends StatefulWidget {
   const HealthDatabaseScreen({super.key});
@@ -23,6 +27,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
   bool? _isValidFilter;
+  int _totalFilteredRecords = 0;
 
   // 分页
   int _currentPage = 0;
@@ -34,13 +39,67 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
 
   // 可用的标识符
   final List<String> _availableIdentifiers = [
+    // 活动相关
     'HKQuantityTypeIdentifierStepCount',
-    'HKQuantityTypeIdentifierHeartRate',
-    'HKQuantityTypeIdentifierActiveEnergyBurned',
     'HKQuantityTypeIdentifierDistanceWalkingRunning',
+    'HKQuantityTypeIdentifierActiveEnergyBurned',
+    'HKQuantityTypeIdentifierBasalEnergyBurned',
+    'HKQuantityTypeIdentifierFlightsClimbed',
+    'HKQuantityTypeIdentifierAppleExerciseTime',
+    'HKQuantityTypeIdentifierAppleStandTime',
+
+    // 心脏相关
+    'HKQuantityTypeIdentifierHeartRate',
+    'HKQuantityTypeIdentifierRestingHeartRate',
+    'HKQuantityTypeIdentifierWalkingHeartRateAverage',
+    'HKQuantityTypeIdentifierHeartRateVariabilitySDNN',
+    'HKQuantityTypeIdentifierVO2Max',
+
+    // 身体测量
     'HKQuantityTypeIdentifierBodyMass',
-    'HKCategoryTypeIdentifierSleepAnalysis',
-    'HKWorkoutTypeIdentifier',
+    'HKQuantityTypeIdentifierBodyFatPercentage',
+    'HKQuantityTypeIdentifierHeight',
+    'HKQuantityTypeIdentifierBodyMassIndex',
+    'HKQuantityTypeIdentifierLeanBodyMass',
+
+    // 营养
+    'HKQuantityTypeIdentifierDietaryEnergyConsumed',
+    'HKQuantityTypeIdentifierDietaryProtein',
+    'HKQuantityTypeIdentifierDietaryCarbohydrates',
+    'HKQuantityTypeIdentifierDietaryFatTotal',
+    'HKQuantityTypeIdentifierDietaryWater',
+
+    // 睡眠
+    // 'HKCategoryTypeIdentifierSleepAnalysis',
+    // 'HKCategoryTypeIdentifierSleepChanges',
+
+    // 运动
+    // 'HKWorkoutTypeIdentifier',
+    // 'HKWorkoutTypeIdentifierWalking',
+    // 'HKWorkoutTypeIdentifierRunning',
+    // 'HKWorkoutTypeIdentifierCycling',
+    // 'HKWorkoutTypeIdentifierSwimming',
+    // 'HKWorkoutTypeIdentifierYoga',
+    // 'HKWorkoutTypeIdentifierStrengthTraining',
+
+    // 生命体征
+    'HKQuantityTypeIdentifierBloodPressureSystolic',
+    'HKQuantityTypeIdentifierBloodPressureDiastolic',
+    'HKQuantityTypeIdentifierRespiratoryRate',
+    'HKQuantityTypeIdentifierBodyTemperature',
+    'HKQuantityTypeIdentifierOxygenSaturation',
+
+    // 听力
+    // 'HKQuantityTypeIdentifierEnvironmentalAudioExposure',
+    // 'HKQuantityTypeIdentifierHeadphoneAudioExposure',
+
+    // 生殖健康
+    // 'HKCategoryTypeIdentifierMenstrualFlow',
+    // 'HKCategoryTypeIdentifierIntermenstrualBleeding',
+    // 'HKCategoryTypeIdentifierSexualActivity',
+
+    // 心理健康
+    // 'HKCategoryTypeIdentifierMindfulSession',
   ];
 
   @override
@@ -48,7 +107,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     super.initState();
     _loadRecords();
     _loadStatistics();
-    _startSync();
+    // _startSync();
   }
 
   @override
@@ -87,9 +146,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('加载记录失败: $e')),
-        );
+        IOSSnackBar.showError(context, message: '加载记录失败: $e');
       }
     } finally {
       if (mounted) {
@@ -103,6 +160,15 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   Future<void> _loadStatistics() async {
     try {
       final statistics = await _syncService.getStatistics();
+
+      if (_selectedIdentifier != null || _startDate != null || _endDate != null || _isValidFilter != null) {
+        _totalFilteredRecords = await _syncService.getRecordCount(
+          identifier: _selectedIdentifier,
+          startDate: _startDate,
+          endDate: _endDate,
+          isValid: _isValidFilter,
+        );
+      }
       if (mounted) {
         setState(() {
           _statistics = statistics;
@@ -121,13 +187,11 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     }
 
     try {
-      await _syncService.startSync(
+      final result = await _syncService.startSync(
         _availableIdentifiers,
         onDataChanged: (identifier) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('检测到 $identifier 数据变化')),
-            );
+            IOSSnackBar.showInfo(context, message: '检测到 ${_getIdentifierDisplayName(identifier)} 数据变化');
           }
         },
         onSyncComplete: (newRecords, deletedIds) async {
@@ -135,25 +199,25 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
           await _loadStatistics();
           if (newRecords.isNotEmpty) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('同步完成: ${newRecords.length} 条新记录')),
-              );
+              IOSSnackBar.showSuccess(context, message: '同步完成: ${newRecords.length} 条新记录');
             }
           }
           if (deletedIds.isNotEmpty) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('删除完成: ${deletedIds.length} 条记录')),
-              );
+              IOSSnackBar.showInfo(context, message: '删除完成: ${deletedIds.length} 条记录');
             }
           }
         },
       );
+
+      if (mounted) {
+        setState(() {
+          _isSyncing = result;
+        });
+      }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('启动同步失败: $e')),
-        );
+        IOSSnackBar.showError(context, message: '启动同步失败: $e');
 
         setState(() {
           _isSyncing = false;
@@ -168,131 +232,44 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   }
 
   Future<void> _showFilterDialog() async {
-    String? selectedIdentifier = _selectedIdentifier;
-    DateTime? startDate = _startDate;
-    DateTime? endDate = _endDate;
-    bool? isValidFilter = _isValidFilter;
-
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('过滤条件'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButtonFormField<String>(
-              value: selectedIdentifier,
-              decoration: const InputDecoration(labelText: '数据类型'),
-              items: [
-                const DropdownMenuItem(value: null, child: Text('全部')),
-                ..._availableIdentifiers.map((id) => DropdownMenuItem(
-                      value: id,
-                      child: Text(_getIdentifierDisplayName(id)),
-                    )),
-              ],
-              onChanged: (value) => selectedIdentifier = value,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: startDate ?? DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime.now(),
-                      );
-                      if (date != null) {
-                        startDate = date;
-                      }
-                    },
-                    child: Text(startDate?.toString().substring(0, 10) ?? '开始日期'),
-                  ),
-                ),
-                Expanded(
-                  child: TextButton(
-                    onPressed: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: endDate ?? DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime.now(),
-                      );
-                      if (date != null) {
-                        endDate = date;
-                      }
-                    },
-                    child: Text(endDate?.toString().substring(0, 10) ?? '结束日期'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<bool>(
-              value: isValidFilter,
-              decoration: const InputDecoration(labelText: '有效性'),
-              items: const [
-                DropdownMenuItem(value: null, child: Text('全部')),
-                DropdownMenuItem(value: true, child: Text('有效')),
-                DropdownMenuItem(value: false, child: Text('无效')),
-              ],
-              onChanged: (value) => isValidFilter = value,
-            ),
-          ],
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HealthFilterScreen(
+          initialIdentifier: _selectedIdentifier,
+          initialStartDate: _startDate,
+          initialEndDate: _endDate,
+          initialIsValid: _isValidFilter,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _selectedIdentifier = selectedIdentifier;
-                _startDate = startDate;
-                _endDate = endDate;
-                _isValidFilter = isValidFilter;
-                _applyFilters();
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('应用'),
-          ),
-        ],
       ),
     );
+
+    if (result != null) {
+      _selectedIdentifier = result['identifier'];
+      _startDate = result['startDate'];
+      _endDate = result['endDate'];
+      _isValidFilter = result['isValid'];
+
+      _totalFilteredRecords = await _syncService.getRecordCount(
+        identifier: _selectedIdentifier,
+        startDate: _startDate,
+        endDate: _endDate,
+        isValid: _isValidFilter,
+      );
+
+      setState(() {
+        _applyFilters();
+      });
+    }
   }
 
-  Future<void> _showStatisticsDialog() async {
+  void _showStatisticsDialog() {
     if (_statistics == null) return;
 
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('统计信息'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('总记录数: ${_statistics!['totalRecords']}'),
-            Text('有效记录: ${_statistics!['validRecords']}'),
-            Text('无效记录: ${_statistics!['invalidRecords']}'),
-            Text('数据类型数: ${_statistics!['uniqueIdentifiers']}'),
-            const SizedBox(height: 16),
-            const Text('各类型记录数:', style: TextStyle(fontWeight: FontWeight.bold)),
-            ...(_statistics!['identifierCounts'] as Map<String, dynamic>).entries.map(
-                  (entry) => Text('${_getIdentifierDisplayName(entry.key)}: ${entry.value}'),
-                ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('关闭'),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StatisticsScreen(statistics: _statistics!),
       ),
     );
   }
@@ -310,7 +287,10 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('清空'),
+            child: const Text(
+              '清空',
+              style: TextStyle(color: Color(0xFFFF3B30)),
+            ),
           ),
         ],
       ),
@@ -322,15 +302,11 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         await _loadRecords();
         await _loadStatistics();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('所有记录已清空')),
-          );
+          IOSSnackBar.showSuccess(context, message: '所有记录已清空');
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('清空失败: $e')),
-          );
+          IOSSnackBar.showError(context, message: '清空失败: $e');
         }
       }
     }
@@ -338,20 +314,110 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
 
   String _getIdentifierDisplayName(String identifier) {
     switch (identifier) {
+      // 活动相关
       case 'HKQuantityTypeIdentifierStepCount':
         return '步数';
-      case 'HKQuantityTypeIdentifierHeartRate':
-        return '心率';
-      case 'HKQuantityTypeIdentifierActiveEnergyBurned':
-        return '活动能量';
       case 'HKQuantityTypeIdentifierDistanceWalkingRunning':
         return '步行跑步距离';
+      case 'HKQuantityTypeIdentifierActiveEnergyBurned':
+        return '活动能量';
+      case 'HKQuantityTypeIdentifierBasalEnergyBurned':
+        return '基础能量';
+      case 'HKQuantityTypeIdentifierFlightsClimbed':
+        return '爬楼层数';
+      case 'HKQuantityTypeIdentifierAppleExerciseTime':
+        return '运动时间';
+      case 'HKQuantityTypeIdentifierAppleStandTime':
+        return '站立时间';
+
+      // 心脏相关
+      case 'HKQuantityTypeIdentifierHeartRate':
+        return '心率';
+      case 'HKQuantityTypeIdentifierRestingHeartRate':
+        return '静息心率';
+      case 'HKQuantityTypeIdentifierWalkingHeartRateAverage':
+        return '步行心率';
+      case 'HKQuantityTypeIdentifierHeartRateVariabilitySDNN':
+        return '心率变异性';
+      case 'HKQuantityTypeIdentifierVO2Max':
+        return '最大摄氧量';
+
+      // 身体测量
       case 'HKQuantityTypeIdentifierBodyMass':
         return '体重';
+      case 'HKQuantityTypeIdentifierBodyFatPercentage':
+        return '体脂率';
+      case 'HKQuantityTypeIdentifierHeight':
+        return '身高';
+      case 'HKQuantityTypeIdentifierBodyMassIndex':
+        return 'BMI';
+      case 'HKQuantityTypeIdentifierLeanBodyMass':
+        return '瘦体重';
+
+      // 营养
+      case 'HKQuantityTypeIdentifierDietaryEnergyConsumed':
+        return '摄入能量';
+      case 'HKQuantityTypeIdentifierDietaryProtein':
+        return '蛋白质';
+      case 'HKQuantityTypeIdentifierDietaryCarbohydrates':
+        return '碳水化合物';
+      case 'HKQuantityTypeIdentifierDietaryFatTotal':
+        return '总脂肪';
+      case 'HKQuantityTypeIdentifierDietaryWater':
+        return '水分';
+
+      // 睡眠
       case 'HKCategoryTypeIdentifierSleepAnalysis':
         return '睡眠分析';
+      case 'HKCategoryTypeIdentifierSleepChanges':
+        return '睡眠变化';
+
+      // 运动
       case 'HKWorkoutTypeIdentifier':
         return '运动';
+      case 'HKWorkoutTypeIdentifierWalking':
+        return '步行';
+      case 'HKWorkoutTypeIdentifierRunning':
+        return '跑步';
+      case 'HKWorkoutTypeIdentifierCycling':
+        return '骑行';
+      case 'HKWorkoutTypeIdentifierSwimming':
+        return '游泳';
+      case 'HKWorkoutTypeIdentifierYoga':
+        return '瑜伽';
+      case 'HKWorkoutTypeIdentifierStrengthTraining':
+        return '力量训练';
+
+      // 生命体征
+      case 'HKQuantityTypeIdentifierBloodPressureSystolic':
+        return '收缩压';
+      case 'HKQuantityTypeIdentifierBloodPressureDiastolic':
+        return '舒张压';
+      case 'HKQuantityTypeIdentifierRespiratoryRate':
+        return '呼吸率';
+      case 'HKQuantityTypeIdentifierBodyTemperature':
+        return '体温';
+      case 'HKQuantityTypeIdentifierOxygenSaturation':
+        return '血氧饱和度';
+
+      // 听力
+      case 'HKQuantityTypeIdentifierEnvironmentalAudioExposure':
+        return '环境音频暴露';
+      case 'HKQuantityTypeIdentifierHeadphoneAudioExposure':
+        return '耳机音频暴露';
+
+      // 生殖健康
+      case 'HKCategoryTypeIdentifierMenstrualFlow':
+        return '月经流量';
+      case 'HKCategoryTypeIdentifierIntermenstrualBleeding':
+        return '经间期出血';
+      case 'HKCategoryTypeIdentifierSexualActivity':
+        return '性活动';
+
+      // 心理健康
+      case 'HKCategoryTypeIdentifierMindfulSession':
+        return '正念会话';
+
       default:
         return identifier;
     }
@@ -362,7 +428,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('确认删除'),
-        content: Text('确定要删除这条记录吗？\n${record.identifier}: ${record.value}'),
+        content: Text('确定要删除这条记录吗？\n${_getIdentifierDisplayName(record.identifier)}: ${_formatValue(record.value)}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -382,15 +448,11 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         await _loadRecords();
         await _loadStatistics();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('记录已删除')),
-          );
+          IOSSnackBar.showSuccess(context, message: '记录已删除');
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('删除失败: $e')),
-          );
+          IOSSnackBar.showError(context, message: '删除失败: $e');
         }
       }
     }
@@ -403,24 +465,44 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     }
   }
 
+  /// 获取当前过滤条件下的总记录数
+  int _getFilteredTotalCount() {
+    // 如果有过滤条件，返回当前显示的记录数
+    if (_selectedIdentifier != null || _startDate != null || _endDate != null || _isValidFilter != null) {
+      return _totalFilteredRecords;
+    }
+    // 如果没有过滤条件，返回数据库总记录数
+    return _statistics?['totalRecords'] ?? 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF2F2F7),
       appBar: AppBar(
-        title: const Text('健康数据详情'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          '健康数据详情',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Colors.black,
+          ),
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.analytics),
+          _buildIOSStyleIconButton(
+            icon: Icons.analytics,
             onPressed: _showStatisticsDialog,
             tooltip: '统计信息',
           ),
-          IconButton(
-            icon: const Icon(Icons.filter_list),
+          _buildIOSStyleIconButton(
+            icon: Icons.filter_list,
             onPressed: _showFilterDialog,
             tooltip: '过滤',
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
+          _buildIOSStyleIconButton(
+            icon: Icons.refresh,
             onPressed: () {
               _currentPage = 0;
               _loadRecords();
@@ -428,19 +510,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
             },
             tooltip: '刷新',
           ),
-          PopupMenuButton(
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'clear',
-                child: Text('清空所有记录'),
-              ),
-            ],
-            onSelected: (value) {
-              if (value == 'clear') {
-                _clearAllRecords();
-              }
-            },
-          ),
+          _buildIOSStylePopupMenu(),
         ],
       ),
       body: Column(
@@ -448,21 +518,88 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
           // 状态栏
           Container(
             padding: const EdgeInsets.all(16),
-            color: Colors.grey[100],
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.grey.shade200,
+                  width: 0.5,
+                ),
+              ),
+            ),
             child: Row(
               children: [
-                Icon(
-                  _isSyncing ? Icons.sync : Icons.sync_disabled,
-                  color: _isSyncing ? Colors.green : Colors.grey,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _isSyncing ? const Color(0xFF34C759).withValues(alpha: 0.1) : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: _isSyncing ? const Color(0xFF34C759) : Colors.grey.shade300,
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _isSyncing ? Icons.sync : Icons.sync_disabled,
+                        size: 16,
+                        color: _isSyncing ? const Color(0xFF34C759) : Colors.grey.shade600,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _isSyncing ? '同步中...' : '同步已停止',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: _isSyncing ? const Color(0xFF34C759) : Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF007AFF).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFF007AFF).withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    '${_filteredRecords.length} 条记录',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF007AFF),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 8),
-                Text(_isSyncing ? '同步中...' : '同步已停止'),
-                const Spacer(),
-                Text('${_filteredRecords.length} 条记录'),
-                if (_statistics != null) ...[
-                  const SizedBox(width: 16),
-                  Text('总: ${_statistics!['totalRecords']}'),
-                ],
+                // 显示当前过滤条件下的总记录数
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    '总: ${_getFilteredTotalCount()}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -493,43 +630,158 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                             }
 
                             final record = _filteredRecords[index];
-                            return Card(
+                            return Container(
                               margin: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 4,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.grey.shade200,
+                                  width: 1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: record.isValid ? Colors.green[100] : Colors.red[100],
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                leading: Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: record.isValid
+                                        ? HealthIconService.getBackgroundColorForIdentifier(record.identifier)
+                                        : const Color(0xFFFF3B30).withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: record.isValid
+                                          ? HealthIconService.getColorForIdentifier(record.identifier)
+                                              .withValues(alpha: 0.3)
+                                          : const Color(0xFFFF3B30).withValues(alpha: 0.3),
+                                      width: 1,
+                                    ),
+                                  ),
                                   child: Icon(
-                                    Icons.favorite,
-                                    color: record.isValid ? Colors.green[600] : Colors.red[600],
+                                    HealthIconService.getIconForIdentifier(record.identifier),
+                                    color: record.isValid
+                                        ? HealthIconService.getColorForIdentifier(record.identifier)
+                                        : const Color(0xFFFF3B30),
+                                    size: 24,
                                   ),
                                 ),
                                 title: Text(
                                   _getIdentifierDisplayName(record.identifier),
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
                                 ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('值: ${record.value} ${record.unit}'),
-                                    Text('时间: ${record.startDate.toString().substring(0, 19)}'),
-                                    Text('来源: ${record.sourceName}'),
-                                  ],
-                                ),
-                                trailing: PopupMenuButton(
-                                  itemBuilder: (context) => [
-                                    const PopupMenuItem(
-                                      value: 'delete',
-                                      child: Text('删除'),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.info_outline,
+                                          size: 14,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${_formatValue(record.value)} ${record.unit}',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey.shade700,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.access_time,
+                                          size: 14,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          record.startDate.toString().substring(0, 19),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.source,
+                                          size: 14,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          record.sourceName,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                  onSelected: (value) {
-                                    if (value == 'delete') {
-                                      _deleteRecord(record);
-                                    }
-                                  },
+                                ),
+                                trailing: Container(
+                                  margin: const EdgeInsets.only(left: 8),
+                                  child: PopupMenuButton<String>(
+                                    icon: Icon(
+                                      Icons.more_vert,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    itemBuilder: (context) => [
+                                      PopupMenuItem<String>(
+                                        value: 'delete',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.delete_outline,
+                                              color: const Color(0xFFFF3B30),
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            const Text(
+                                              '删除',
+                                              style: TextStyle(
+                                                color: Color(0xFFFF3B30),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                    onSelected: (value) {
+                                      if (value == 'delete') {
+                                        _deleteRecord(record);
+                                      }
+                                    },
+                                  ),
                                 ),
                               ),
                             );
@@ -545,5 +797,109 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         child: const Icon(Icons.sync),
       ),
     );
+  }
+
+  Widget _buildIOSStyleIconButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required String tooltip,
+  }) {
+    return Container(
+      margin: const EdgeInsets.all(4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            child: Icon(
+              icon,
+              size: 22,
+              color: const Color(0xFF007AFF),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIOSStylePopupMenu() {
+    return Container(
+      margin: const EdgeInsets.all(4),
+      child: PopupMenuButton<String>(
+        icon: const Icon(
+          Icons.more_vert,
+          color: Color(0xFF007AFF),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        itemBuilder: (context) => [
+          PopupMenuItem<String>(
+            value: 'clear',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.delete_forever,
+                  color: const Color(0xFFFF3B30),
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  '清空所有记录',
+                  style: TextStyle(
+                    color: Color(0xFFFF3B30),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        onSelected: (value) {
+          if (value == 'clear') {
+            _clearAllRecords();
+          }
+        },
+      ),
+    );
+  }
+
+  /// 格式化数值显示，控制浮点数精度
+  String _formatValue(dynamic value) {
+    if (value == null) return '0';
+
+    // 如果是字符串，尝试转换为数字
+    if (value is String) {
+      try {
+        final numValue = double.tryParse(value);
+        if (numValue != null) {
+          return _formatNumber(numValue);
+        }
+        return value; // 如果无法转换，直接返回原字符串
+      } catch (e) {
+        return value;
+      }
+    }
+
+    // 如果是数字类型
+    if (value is num) {
+      return _formatNumber(value.toDouble());
+    }
+
+    // 其他类型直接转换为字符串
+    return value.toString();
+  }
+
+  /// 格式化数字，限制小数点后3位
+  String _formatNumber(double number) {
+    // 如果是整数，直接返回整数形式
+    if (number == number.toInt()) {
+      return number.toInt().toString();
+    }
+
+    // 如果是小数，限制为3位小数
+    return number.toStringAsFixed(3).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
   }
 }

@@ -54,8 +54,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF2F2F7), // iOS系统背景色
       appBar: AppBar(
-        leading: AuthButton(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: _buildAuthButton(
           icon: Icons.health_and_safety,
           tooltip: '授权健康数据访问',
           isAuthorized: _isAuthorized,
@@ -63,40 +66,47 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         title: const Text(
           'HealthKit 数据管理器',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Colors.black,
+          ),
         ),
         actions: [
-          AuthButton(
+          _buildAuthButton(
             icon: Icons.medical_services,
             tooltip: '授权临床记录访问',
             isAuthorized: _isClinicalAuthorized,
             onPressed: () => _authorizeClinicalRecords(),
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(
-              icon: Icon(Icons.visibility),
-              text: '数据读取',
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.grey.shade200,
+                  width: 0.5,
+                ),
+              ),
             ),
-            Tab(
-              icon: Icon(Icons.edit_note),
-              text: '数据写入',
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              indicatorPadding: const EdgeInsets.symmetric(horizontal: 0),
+              tabs: [
+                _buildTab(Icons.visibility, '数据读取'),
+                _buildTab(Icons.edit_note, '数据写入'),
+                _buildTab(Icons.monitor_heart, '实时监控'),
+                _buildTab(Icons.delete_forever, '数据删除'),
+                _buildTab(Icons.storage, '本地数据库'),
+              ],
             ),
-            Tab(
-              icon: Icon(Icons.monitor_heart),
-              text: '实时监控',
-            ),
-            Tab(
-              icon: Icon(Icons.delete_forever),
-              text: '数据删除',
-            ),
-            Tab(
-              icon: Icon(Icons.storage),
-              text: '本地数据库',
-            ),
-          ],
+          ),
         ),
       ),
       body: TabBarView(
@@ -129,6 +139,56 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildTab(IconData icon, String text) {
+    return Tab(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAuthButton({
+    required IconData icon,
+    required String tooltip,
+    required bool isAuthorized,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isAuthorized ? const Color(0xFF34C759) : Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isAuthorized ? const Color(0xFF34C759) : Colors.grey.shade300,
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isAuthorized ? Colors.white : Colors.grey.shade600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _authorize() async {
     try {
       final readTypes = <String>[];
@@ -157,24 +217,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _isAuthorized = isRequested;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isRequested ? '✅ 健康数据授权成功' : '❌ 健康数据授权失败'),
-            backgroundColor: isRequested ? Colors.green : Colors.red,
-          ),
-        );
+        if (isRequested) {
+          IOSSnackBar.showSuccess(context, message: '✅ 健康数据授权成功');
+        } else {
+          IOSSnackBar.showError(context, message: '❌ 健康数据授权失败');
+        }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _isAuthorized = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ 授权失败: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        IOSSnackBar.showError(context, message: '❌ 授权失败: $e');
       }
     }
   }
@@ -189,12 +243,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _isClinicalAuthorized = isRequested;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isRequested ? '✅ 临床记录授权成功' : '❌ 临床记录授权失败'),
-            backgroundColor: isRequested ? Colors.green : Colors.red,
-          ),
-        );
+        if (isRequested) {
+          IOSSnackBar.showSuccess(context, message: '✅ 临床记录授权成功');
+        } else {
+          IOSSnackBar.showError(context, message: '❌ 临床记录授权失败');
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -202,12 +255,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _isClinicalAuthorized = false;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ 临床记录授权失败: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        IOSSnackBar.showError(context, message: '❌ 临床记录授权失败: $e');
       }
     }
   }

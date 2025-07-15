@@ -32,11 +32,13 @@ class HealthSyncService {
   Function(List<HealthRecord>, List<String>)? _onSyncComplete;
 
   /// 开始同步指定类型的数据
-  Future<void> startSync(
+  Future<bool> startSync(
     List<String> identifiers, {
     Function(String)? onDataChanged,
     Function(List<HealthRecord>, List<String>)? onSyncComplete,
   }) async {
+    bool result = true;
+
     _onDataChanged = onDataChanged;
     _onSyncComplete = onSyncComplete;
 
@@ -47,16 +49,24 @@ class HealthSyncService {
     _syncingIdentifiers.addAll(identifiers);
 
     // 1. 首先进行初始同步
-    await _performInitialSync();
+    result = await _performInitialSync();
 
     // 2. 设置观察者查询监听变化
-    await _setupObserverQuery();
+    if (result) {
+      result = await _setupObserverQuery();
+    }
 
     // 3. 设置锚点对象查询进行增量同步
-    await _setupAnchoredObjectQuery();
+    if (result) {
+      result = await _setupAnchoredObjectQuery();
+    }
 
     // 4. 启用后台交付
-    await _enableBackgroundDelivery();
+    if (result) {
+      result = await _enableBackgroundDelivery();
+    }
+
+    return result;
   }
 
   /// 停止同步
@@ -67,7 +77,7 @@ class HealthSyncService {
   }
 
   /// 执行初始同步，先同步历史数据
-  Future<void> _performInitialSync() async {
+  Future<bool> _performInitialSync() async {
     try {
       // 获取近30天所有数据
       final predicate = Predicate(
@@ -88,13 +98,16 @@ class HealthSyncService {
       await _databaseService.insertRecords(records);
 
       _onSyncComplete?.call(records, []);
+
+      return true;
     } catch (e) {
       debugPrint('初始同步失败: $e');
+      return false;
     }
   }
 
   /// 设置观察者查询
-  Future<void> _setupObserverQuery() async {
+  Future<bool> _setupObserverQuery() async {
     try {
       _observerSubscription = HealthKitReporter.observerQuery(
         _syncingIdentifiers,
@@ -106,8 +119,11 @@ class HealthSyncService {
           await _performIncrementalSync([identifier]);
         },
       );
+
+      return true;
     } catch (e) {
       debugPrint('设置观察者查询失败: $e');
+      return false;
     }
   }
 
@@ -138,7 +154,7 @@ class HealthSyncService {
   }
 
   /// 设置锚点对象查询
-  Future<void> _setupAnchoredObjectQuery() async {
+  Future<bool> _setupAnchoredObjectQuery() async {
     try {
       final predicate = Predicate(
         DateTime.now().subtract(const Duration(days: 7)),
@@ -152,8 +168,11 @@ class HealthSyncService {
           await _handleAnchoredObjectUpdate(samples, deletedObjects);
         },
       );
+
+      return true;
     } catch (e) {
       debugPrint('设置锚点对象查询失败: $e');
+      return false;
     }
   }
 
@@ -182,17 +201,25 @@ class HealthSyncService {
   }
 
   /// 启用后台交付
-  Future<void> _enableBackgroundDelivery() async {
+  Future<bool> _enableBackgroundDelivery() async {
+    bool result = true;
     for (final identifier in _syncingIdentifiers) {
       try {
-        await HealthKitReporter.enableBackgroundDelivery(
+        result = await HealthKitReporter.enableBackgroundDelivery(
           identifier,
           UpdateFrequency.immediate,
         );
       } catch (e) {
         debugPrint('启用后台交付失败 $identifier: $e');
+        result = false;
+      }
+
+      if (!result) {
+        break;
       }
     }
+
+    return result;
   }
 
   /// 更新数据库
