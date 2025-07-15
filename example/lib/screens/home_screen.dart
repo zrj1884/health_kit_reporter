@@ -14,6 +14,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // 导入组件
 import '../components/index.dart';
+import 'health_database_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
 
     // 初始化通知插件
     const initializationSettingsIOS = DarwinInitializationSettings();
@@ -91,6 +92,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               icon: Icon(Icons.delete_forever),
               text: '数据删除',
             ),
+            Tab(
+              icon: Icon(Icons.storage),
+              text: '本地数据库',
+            ),
           ],
         ),
       ),
@@ -114,6 +119,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _LazyTabView(
             index: 3,
             child: const DeleteView(),
+          ),
+          _LazyTabView(
+            index: 4,
+            child: const HealthDatabaseScreen(),
           ),
         ],
       ),
