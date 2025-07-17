@@ -112,6 +112,18 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
                 subtitle: '查询用户个人特征数据',
                 onTap: () => _queryCharacteristics(),
               ),
+              ActionCard(
+                icon: Icons.volume_up,
+                title: '环境音量',
+                subtitle: '查询用户环境音量数据',
+                onTap: () => _queryEnvironmentalAudioExposure(),
+              ),
+              ActionCard(
+                icon: Icons.headphones,
+                title: '耳机通知',
+                subtitle: '查询用户耳机通知数据',
+                onTap: () => _queryHeadphoneAudioExposure(),
+              ),
             ],
           ),
         ),
@@ -369,6 +381,56 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
             '数据点数量: ${quantities.length}');
       } else {
         _updateResult('未找到血氧饱和度数据');
+      }
+    } catch (e) {
+      _updateResult('查询失败: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> _queryEnvironmentalAudioExposure() async {
+    _setLoading(true);
+    try {
+      final preferredUnits = await HealthKitReporter.preferredUnits([QuantityType.environmentalAudioExposure]);
+      final audioUnits = preferredUnits.first.unit;
+      final quantities =
+          await HealthKitReporter.quantityQuery(QuantityType.environmentalAudioExposure, audioUnits, predicate);
+
+      if (quantities.isNotEmpty) {
+        final latest = quantities.first;
+        final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
+        _updateResult('最新环境音量: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
+            '平均环境音量: ${averageValue.toStringAsFixed(2)} ${latest.harmonized.unit}\n'
+            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+            '数据点数量: ${quantities.length}');
+      } else {
+        _updateResult('未找到环境音量数据');
+      }
+    } catch (e) {
+      _updateResult('查询失败: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> _queryHeadphoneAudioExposure() async {
+    _setLoading(true);
+    try {
+      final preferredUnits = await HealthKitReporter.preferredUnits([QuantityType.headphoneAudioExposure]);
+      final audioUnits = preferredUnits.first.unit;
+      final quantities =
+          await HealthKitReporter.quantityQuery(QuantityType.headphoneAudioExposure, audioUnits, predicate);
+
+      if (quantities.isNotEmpty) {
+        final latest = quantities.first;
+        final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
+        _updateResult('最新耳机通知: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
+            '平均耳机通知: ${averageValue.toStringAsFixed(2)} ${latest.harmonized.unit}\n'
+            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+            '数据点数量: ${quantities.length}');
+      } else {
+        _updateResult('未找到耳机通知数据');
       }
     } catch (e) {
       _updateResult('查询失败: $e');

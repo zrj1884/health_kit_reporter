@@ -727,9 +727,9 @@ class HealthIconService {
 
       // 听力
       case 'HKQuantityTypeIdentifierEnvironmentalAudioExposure':
-        return '环境音频暴露';
+        return '环境音量';
       case 'HKQuantityTypeIdentifierHeadphoneAudioExposure':
-        return '耳机音频暴露';
+        return '耳机通知';
 
       // 生殖健康
       case 'HKCategoryTypeIdentifierMenstrualFlow':
