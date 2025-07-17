@@ -31,8 +31,8 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  # TODO: This is temporary, until the PR to upgrade HealthKitReporter CocoaPods library to version 3.1.0 gets merged.
-  pod 'HealthKitReporter', :git => 'https://github.com/quentinleguennec/HealthKitReporter', :branch => 'feature_add_clinical_records', :tag => '3.1.0'
+  # Using zrj1884's fork of HealthKitReporter version 3.1.1
+  pod 'HealthKitReporter', :git => 'https://github.com/zrj1884/HealthKitReporter', :tag => '3.1.1'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
