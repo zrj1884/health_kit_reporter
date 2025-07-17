@@ -2,24 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:health_kit_reporter/health_kit_reporter.dart';
+import 'package:health_kit_reporter/model/payload/workout_activity_type.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/type/category_type.dart';
 import 'package:health_kit_reporter/model/type/clinical_type.dart';
 import 'package:health_kit_reporter/model/type/correlation_type.dart';
 import 'package:health_kit_reporter/model/predicate.dart';
 
-import 'reporter_mixin.dart';
-import 'action_card.dart';
-import 'result_display.dart';
+import '../components/index.dart';
 
-class ReadView extends StatefulWidget {
-  const ReadView({super.key});
+class ReadScreen extends StatefulWidget {
+  const ReadScreen({super.key});
 
   @override
-  State<ReadView> createState() => _ReadViewState();
+  State<ReadScreen> createState() => _ReadScreenState();
 }
 
-class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
+class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
   String _lastResult = '';
   bool _isLoading = false;
 
@@ -193,7 +192,7 @@ class _ReadViewState extends State<ReadView> with HealthKitReporterMixin {
             workouts.fold<double>(0, (sum, workout) => sum + (workout.harmonized.totalEnergyBurned ?? 0));
         _updateResult('运动记录数量: ${workouts.length}\n'
             '总消耗卡路里: ${totalCalories.toStringAsFixed(1)} kcal\n'
-            '最新运动: ${workouts.first.harmonized.type}');
+            '最新运动: ${workouts.first.harmonized.type.description}');
       } else {
         _updateResult('未找到运动数据');
       }

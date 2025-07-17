@@ -255,7 +255,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
           if (item.value == null) {
             return false;
           }
-          final name = _getIdentifierDisplayName(item.value!);
+          final name = HealthIconService.getDisplayNameForIdentifier(item.value!);
           return name.toLowerCase().contains(searchValue.toLowerCase());
         },
       ),
@@ -564,7 +564,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
                     color: HealthIconService.getColorForIdentifier(identifier),
                   ),
                   const SizedBox(width: 8),
-                  Text(_getIdentifierDisplayName(identifier)),
+                  Text(HealthIconService.getDisplayNameForIdentifier(identifier)),
                 ],
               ),
             ),
@@ -574,77 +574,5 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
     });
 
     return items;
-  }
-
-  /// 获取标识符显示名称
-  String _getIdentifierDisplayName(String identifier) {
-    switch (identifier) {
-      // 活动相关
-      case 'HKQuantityTypeIdentifierStepCount':
-        return '步数';
-      case 'HKQuantityTypeIdentifierDistanceWalkingRunning':
-        return '步行跑步距离';
-      case 'HKQuantityTypeIdentifierActiveEnergyBurned':
-        return '活动能量';
-      case 'HKQuantityTypeIdentifierBasalEnergyBurned':
-        return '基础能量';
-      case 'HKQuantityTypeIdentifierFlightsClimbed':
-        return '爬楼层数';
-      case 'HKQuantityTypeIdentifierAppleExerciseTime':
-        return '运动时间';
-      case 'HKQuantityTypeIdentifierAppleStandTime':
-        return '站立时间';
-
-      // 心脏相关
-      case 'HKQuantityTypeIdentifierHeartRate':
-        return '心率';
-      case 'HKQuantityTypeIdentifierRestingHeartRate':
-        return '静息心率';
-      case 'HKQuantityTypeIdentifierWalkingHeartRateAverage':
-        return '步行心率';
-      case 'HKQuantityTypeIdentifierHeartRateVariabilitySDNN':
-        return '心率变异性';
-      case 'HKQuantityTypeIdentifierVO2Max':
-        return '最大摄氧量';
-
-      // 身体测量
-      case 'HKQuantityTypeIdentifierBodyMass':
-        return '体重';
-      case 'HKQuantityTypeIdentifierBodyFatPercentage':
-        return '体脂率';
-      case 'HKQuantityTypeIdentifierHeight':
-        return '身高';
-      case 'HKQuantityTypeIdentifierBodyMassIndex':
-        return 'BMI';
-      case 'HKQuantityTypeIdentifierLeanBodyMass':
-        return '瘦体重';
-
-      // 营养
-      case 'HKQuantityTypeIdentifierDietaryEnergyConsumed':
-        return '摄入能量';
-      case 'HKQuantityTypeIdentifierDietaryProtein':
-        return '蛋白质';
-      case 'HKQuantityTypeIdentifierDietaryCarbohydrates':
-        return '碳水化合物';
-      case 'HKQuantityTypeIdentifierDietaryFatTotal':
-        return '总脂肪';
-      case 'HKQuantityTypeIdentifierDietaryWater':
-        return '水分';
-
-      // 生命体征
-      case 'HKQuantityTypeIdentifierBloodPressureSystolic':
-        return '收缩压';
-      case 'HKQuantityTypeIdentifierBloodPressureDiastolic':
-        return '舒张压';
-      case 'HKQuantityTypeIdentifierRespiratoryRate':
-        return '呼吸率';
-      case 'HKQuantityTypeIdentifierBodyTemperature':
-        return '体温';
-      case 'HKQuantityTypeIdentifierOxygenSaturation':
-        return '血氧饱和度';
-
-      default:
-        return identifier;
-    }
   }
 }

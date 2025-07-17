@@ -5,19 +5,16 @@ import 'package:health_kit_reporter/health_kit_reporter.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/predicate.dart';
 
-import 'action_card.dart';
-import 'reporter_mixin.dart';
-import 'result_display.dart';
-import 'warning_display.dart';
+import '../components/index.dart';
 
-class DeleteView extends StatefulWidget {
-  const DeleteView({super.key});
+class DeleteScreen extends StatefulWidget {
+  const DeleteScreen({super.key});
 
   @override
-  State<DeleteView> createState() => _DeleteViewState();
+  State<DeleteScreen> createState() => _DeleteScreenState();
 }
 
-class _DeleteViewState extends State<DeleteView> with HealthKitReporterMixin {
+class _DeleteScreenState extends State<DeleteScreen> with HealthKitReporterMixin {
   String _lastResult = '';
   bool _isLoading = false;
 

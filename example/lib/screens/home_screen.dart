@@ -14,7 +14,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // 导入组件
 import '../components/index.dart';
+import 'delete_screen.dart';
 import 'health_database_screen.dart';
+import 'observe_screen.dart';
+import 'read_screen.dart';
+import 'write_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -114,21 +118,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           _LazyTabView(
             index: 0,
-            child: const ReadView(),
+            child: const ReadScreen(),
           ),
           _LazyTabView(
             index: 1,
-            child: const WriteView(),
+            child: const WriteScreen(),
           ),
           _LazyTabView(
             index: 2,
-            child: ObserveView(
+            child: ObserveScreen(
               flutterLocalNotificationsPlugin: _flutterLocalNotificationsPlugin,
             ),
           ),
           _LazyTabView(
             index: 3,
-            child: const DeleteView(),
+            child: const DeleteScreen(),
           ),
           _LazyTabView(
             index: 4,

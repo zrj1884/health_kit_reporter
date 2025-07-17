@@ -250,7 +250,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _getIdentifierDisplayName(entry.key),
+                  HealthIconService.getDisplayNameForIdentifier(entry.key),
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                   ),
@@ -283,118 +283,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         ],
       ),
     );
-  }
-
-  /// 获取标识符显示名称
-  String _getIdentifierDisplayName(String identifier) {
-    switch (identifier) {
-      // 活动相关
-      case 'HKQuantityTypeIdentifierStepCount':
-        return '步数';
-      case 'HKQuantityTypeIdentifierDistanceWalkingRunning':
-        return '步行跑步距离';
-      case 'HKQuantityTypeIdentifierActiveEnergyBurned':
-        return '活动能量';
-      case 'HKQuantityTypeIdentifierBasalEnergyBurned':
-        return '基础能量';
-      case 'HKQuantityTypeIdentifierFlightsClimbed':
-        return '爬楼层数';
-      case 'HKQuantityTypeIdentifierAppleExerciseTime':
-        return '运动时间';
-      case 'HKQuantityTypeIdentifierAppleStandTime':
-        return '站立时间';
-
-      // 心脏相关
-      case 'HKQuantityTypeIdentifierHeartRate':
-        return '心率';
-      case 'HKQuantityTypeIdentifierRestingHeartRate':
-        return '静息心率';
-      case 'HKQuantityTypeIdentifierWalkingHeartRateAverage':
-        return '步行心率';
-      case 'HKQuantityTypeIdentifierHeartRateVariabilitySDNN':
-        return '心率变异性';
-      case 'HKQuantityTypeIdentifierVO2Max':
-        return '最大摄氧量';
-
-      // 身体测量
-      case 'HKQuantityTypeIdentifierBodyMass':
-        return '体重';
-      case 'HKQuantityTypeIdentifierBodyFatPercentage':
-        return '体脂率';
-      case 'HKQuantityTypeIdentifierHeight':
-        return '身高';
-      case 'HKQuantityTypeIdentifierBodyMassIndex':
-        return 'BMI';
-      case 'HKQuantityTypeIdentifierLeanBodyMass':
-        return '瘦体重';
-
-      // 营养
-      case 'HKQuantityTypeIdentifierDietaryEnergyConsumed':
-        return '摄入能量';
-      case 'HKQuantityTypeIdentifierDietaryProtein':
-        return '蛋白质';
-      case 'HKQuantityTypeIdentifierDietaryCarbohydrates':
-        return '碳水化合物';
-      case 'HKQuantityTypeIdentifierDietaryFatTotal':
-        return '总脂肪';
-      case 'HKQuantityTypeIdentifierDietaryWater':
-        return '水分';
-
-      // 睡眠
-      case 'HKCategoryTypeIdentifierSleepAnalysis':
-        return '睡眠分析';
-      case 'HKCategoryTypeIdentifierSleepChanges':
-        return '睡眠变化';
-
-      // 运动
-      case 'HKWorkoutTypeIdentifier':
-        return '运动';
-      case 'HKWorkoutTypeIdentifierWalking':
-        return '步行';
-      case 'HKWorkoutTypeIdentifierRunning':
-        return '跑步';
-      case 'HKWorkoutTypeIdentifierCycling':
-        return '骑行';
-      case 'HKWorkoutTypeIdentifierSwimming':
-        return '游泳';
-      case 'HKWorkoutTypeIdentifierYoga':
-        return '瑜伽';
-      case 'HKWorkoutTypeIdentifierStrengthTraining':
-        return '力量训练';
-
-      // 生命体征
-      case 'HKQuantityTypeIdentifierBloodPressureSystolic':
-        return '收缩压';
-      case 'HKQuantityTypeIdentifierBloodPressureDiastolic':
-        return '舒张压';
-      case 'HKQuantityTypeIdentifierRespiratoryRate':
-        return '呼吸率';
-      case 'HKQuantityTypeIdentifierBodyTemperature':
-        return '体温';
-      case 'HKQuantityTypeIdentifierOxygenSaturation':
-        return '血氧饱和度';
-
-      // 听力
-      case 'HKQuantityTypeIdentifierEnvironmentalAudioExposure':
-        return '环境音频暴露';
-      case 'HKQuantityTypeIdentifierHeadphoneAudioExposure':
-        return '耳机音频暴露';
-
-      // 生殖健康
-      case 'HKCategoryTypeIdentifierMenstrualFlow':
-        return '月经流量';
-      case 'HKCategoryTypeIdentifierIntermenstrualBleeding':
-        return '经间期出血';
-      case 'HKCategoryTypeIdentifierSexualActivity':
-        return '性活动';
-
-      // 心理健康
-      case 'HKCategoryTypeIdentifierMindfulSession':
-        return '正念会话';
-
-      default:
-        return identifier;
-    }
   }
 
   /// 获取分类图标

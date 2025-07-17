@@ -14,18 +14,16 @@ import 'package:health_kit_reporter/model/type/category_type.dart';
 import 'package:health_kit_reporter/model/type/correlation_type.dart';
 import 'package:health_kit_reporter/model/type/workout_type.dart';
 
-import 'reporter_mixin.dart';
-import 'action_card.dart';
-import 'result_display.dart';
+import '../components/index.dart';
 
-class WriteView extends StatefulWidget {
-  const WriteView({super.key});
+class WriteScreen extends StatefulWidget {
+  const WriteScreen({super.key});
 
   @override
-  State<WriteView> createState() => _WriteViewState();
+  State<WriteScreen> createState() => _WriteScreenState();
 }
 
-class _WriteViewState extends State<WriteView> with HealthKitReporterMixin {
+class _WriteScreenState extends State<WriteScreen> with HealthKitReporterMixin {
   String _lastResult = '';
   bool _isLoading = false;
 

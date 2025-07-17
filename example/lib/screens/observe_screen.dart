@@ -8,12 +8,10 @@ import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/update_frequency.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import 'action_card.dart';
-import 'monitor_status.dart';
-import 'reporter_mixin.dart';
+import '../components/index.dart';
 
-class ObserveView extends StatefulWidget {
-  const ObserveView({
+class ObserveScreen extends StatefulWidget {
+  const ObserveScreen({
     super.key,
     required this.flutterLocalNotificationsPlugin,
   });
@@ -21,10 +19,10 @@ class ObserveView extends StatefulWidget {
   final dynamic flutterLocalNotificationsPlugin;
 
   @override
-  State<ObserveView> createState() => _ObserveViewState();
+  State<ObserveScreen> createState() => _ObserveScreenState();
 }
 
-class _ObserveViewState extends State<ObserveView> with HealthKitReporterMixin {
+class _ObserveScreenState extends State<ObserveScreen> with HealthKitReporterMixin {
   bool _isObserving = false;
   final List<String> _observations = [];
   StreamSubscription<dynamic>? _currentSubscription;

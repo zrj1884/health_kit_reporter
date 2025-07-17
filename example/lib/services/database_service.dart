@@ -213,14 +213,18 @@ class DatabaseService {
     );
   }
 
-  /// 批量删除记录
+  /// 批量软删除记录（标记为无效）
   Future<void> deleteRecords(List<String> ids) async {
     if (ids.isEmpty) return;
 
     final db = await database;
     final placeholders = List.filled(ids.length, '?').join(',');
-    await db.delete(
+    await db.update(
       'health_records',
+      {
+        'is_valid': 0,
+        'updated_timestamp': DateTime.now().millisecondsSinceEpoch,
+      },
       where: 'id IN ($placeholders)',
       whereArgs: ids,
     );
