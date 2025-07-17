@@ -14,13 +14,15 @@ A Flutter wrapper for [HealthKitReporter](https://cocoapods.org/pods/HealthKitRe
 
 - Go inside pubspec.yaml file
 - Add this to your package's pubspec.yaml file:
+
 ``` Dart
 dependencies:
      health_kit_reporter: ^3.1.0
 ```
 
 **TEMPORARY:** Until the CocoaPods library this plugin relies on is upgraded to version 3.1.0 it is compulsory to modify your `ios/Podfile` like so:
-```
+
+```code
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
@@ -36,7 +38,7 @@ end
 
 ``` shell
 flutter pub get
-``` 
+```
 
 ## How to use
 
@@ -46,7 +48,6 @@ In Xcode, go to Runner > Signing and Capabilities and add the entitlement for He
 If you want to read Clinical Records then also check "Clinical Health Records" under Health Kit.
 
 ***NOTE:*** *You can only tick the "Clinical Health Records" checkmark if your development team has a paid Apple developer subscription. To test on a real device, or to publish your application, you will need a paid Apple subscription, but you can still test on the iOS simulator without a subscription by setting the Development Team to None.*
-
 
 Then in your app's info.plist file add permissions:
 
@@ -75,15 +76,16 @@ If you plan to read **Clinical Records** please provide additionally:
 
 ### Common usage
 
-You simply call a <i>HealthKitReporter</i> methods surrounding by try catch blocks. 
+You simply call a <i>HealthKitReporter</i> methods surrounding by try catch blocks.
 
 Warning: If Apple Health is not supported by the device (i.e. iPad) the error result will occur.
 
 The reporter supports following operations with **HealthKit**:
-* accessing to permissions
-* reading data 
-* writing data 
-* observing data changes
+
+- accessing to permissions
+- reading data
+- writing data
+- observing data changes
 
 If you want to read, write data or observe data changes, you always need to be sure that the data types are authorized to be read/written/observed. In that case call authorization method and await for the result telling about the presentation of the authorization window. Notice that Apple Health Kit will show this window only once during the whole time app is installed on the device, in this case if some types were denied to be read or written, user should manually allow this in Apple Health App.
 
@@ -96,6 +98,7 @@ Call the method: **requestAuthorization**
 For this method you need to specify the strings identifiers of types you want to get access.
 
 In the example, we want to read data for all **QuantityTypes** and write data for **QuantityType.stepCount**:
+
 ```dart
 Future<void> requestAuthorization() async {
   try {
@@ -117,8 +120,7 @@ Future<void> requestAuthorization() async {
 **Warning: Please keep in mind, Apple Health Kit does not let anyone to know if reading permissions were provided.**
 
 User can decline some of the reading permissions, but the result of the function will still be **true**.
-See [Authorization status](https://developer.apple.com/documentation/healthkit/hkhealthstore/1614154-authorizationstatus) 
-
+See [Authorization status](https://developer.apple.com/documentation/healthkit/hkhealthstore/1614154-authorizationstatus)
 
 ### Reading Data
 
@@ -276,25 +278,30 @@ This call is a subscription for EventChannel of the plugin, so don't forget to c
 ```
 
 According to [Observing Query](https://developer.apple.com/documentation/healthkit/hkobserverquery) and [Background Delivery](https://developer.apple.com/documentation/healthkit/hkhealthstore/1614175-enablebackgrounddelivery)
-you might create an App which will be called every time by HealthKit, even if the app is in background, to notify, that some data was changed in HealthKit depending on frequency. But keep in mind that sometimes the desired frequency you set cannot be fulfilled by HealthKit. 
+you might create an App which will be called every time by HealthKit, even if the app is in background, to notify, that some data was changed in HealthKit depending on frequency. But keep in mind that sometimes the desired frequency you set cannot be fulfilled by HealthKit.
 
 To receive notifications when the app is killed by the system or in background:
+
 - provide an additional capability **Background Mode** and select **Background fetch**
 - with calling **observerQuery**, you need to call **enableBackgroundDelivery** function as well
 
 As a recommendation set up the subscription inside **initState** or **build** methods of your widget or as more preferred in **main** function of your app.
 
 If you want to stop observation, you need to:
+
 - remove the subscription for **observerQuery**
 - call **disableBackgroundDelivery** or **disableAllBackgroundDelivery**
 
 ## Requirements
+
 The library supports minimum iOS 11.
 Some features like **HeartbeatSeries** are available only starting with iOS 13.0 and like **Electrocardiogramm** starting with iOS 14.0.
 Clinical Records are available only starting with iOS 12.0.
 
 ## License
-Under <a href=https://github.com/VictorKachalov/localized/blob/master/LICENSE>MIT License</a>
+
+Under <a href=<https://github.com/VictorKachalov/localized/blob/master/LICENSE>MIT> License</a>
 
 ## Sponsorhip
+
 If you think that my repo helped you to solve the issues you struggle with, please don't be shy and sponsor :-)

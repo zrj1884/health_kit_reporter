@@ -14,6 +14,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // 导入组件
 import '../components/index.dart';
+import '../services/authorization_service.dart';
 import 'delete_screen.dart';
 import 'health_database_screen.dart';
 import 'observe_screen.dart';
@@ -47,6 +48,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       print(response.payload);
       return;
     });
+
+    // 读取缓存的授权状态
+    _loadCachedAuthorizationStatus();
   }
 
   @override
@@ -225,6 +229,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
         if (isRequested) {
           IOSSnackBar.showSuccess(context, message: '✅ 健康数据授权成功');
+          // 缓存授权状态
+          await AuthorizationService.cacheHealthDataAuthorization(isRequested);
         } else {
           IOSSnackBar.showError(context, message: '❌ 健康数据授权失败');
         }
@@ -251,6 +257,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
         if (isRequested) {
           IOSSnackBar.showSuccess(context, message: '✅ 临床记录授权成功');
+          // 缓存授权状态
+          await AuthorizationService.cacheClinicalRecordsAuthorization(isRequested);
         } else {
           IOSSnackBar.showError(context, message: '❌ 临床记录授权失败');
         }
@@ -263,6 +271,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
         IOSSnackBar.showError(context, message: '❌ 临床记录授权失败: $e');
       }
+    }
+  }
+
+  /// 加载缓存的授权状态
+  Future<void> _loadCachedAuthorizationStatus() async {
+    try {
+      final healthDataAuth = await AuthorizationService.getCachedHealthDataAuthorization();
+      final clinicalRecordsAuth = await AuthorizationService.getCachedClinicalRecordsAuthorization();
+
+      if (mounted) {
+        setState(() {
+          _isAuthorized = healthDataAuth;
+          _isClinicalAuthorized = clinicalRecordsAuth;
+        });
+      }
+    } catch (e) {
+      print('加载缓存授权状态失败: $e');
     }
   }
 }

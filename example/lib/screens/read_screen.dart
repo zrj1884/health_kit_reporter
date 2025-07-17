@@ -83,6 +83,18 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
                 onTap: () => _queryBloodPressure(),
               ),
               ActionCard(
+                icon: Icons.favorite,
+                title: '收缩压',
+                subtitle: '查询用户收缩压数据',
+                onTap: () => _querySystolicBloodPressure(),
+              ),
+              ActionCard(
+                icon: Icons.favorite,
+                title: '舒张压',
+                subtitle: '查询用户舒张压数据',
+                onTap: () => _queryDiastolicBloodPressure(),
+              ),
+              ActionCard(
                 icon: Icons.air,
                 title: '血氧饱和度',
                 subtitle: '查询用户血氧饱和度数据',
@@ -254,6 +266,56 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
             '最新记录: ${_convertToDateTime(correlations.first.startTimestamp)}');
       } else {
         _updateResult('未找到血压数据');
+      }
+    } catch (e) {
+      _updateResult('查询失败: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> _querySystolicBloodPressure() async {
+    _setLoading(true);
+    try {
+      final preferredUnits = await HealthKitReporter.preferredUnits([QuantityType.bloodPressureSystolic]);
+      final systolicUnits = preferredUnits.first.unit;
+      final quantities =
+          await HealthKitReporter.quantityQuery(QuantityType.bloodPressureSystolic, systolicUnits, predicate);
+
+      if (quantities.isNotEmpty) {
+        final latest = quantities.first;
+        final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
+        _updateResult('最新收缩压: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
+            '平均收缩压: ${averageValue.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
+            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+            '数据点数量: ${quantities.length}');
+      } else {
+        _updateResult('未找到收缩压数据');
+      }
+    } catch (e) {
+      _updateResult('查询失败: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> _queryDiastolicBloodPressure() async {
+    _setLoading(true);
+    try {
+      final preferredUnits = await HealthKitReporter.preferredUnits([QuantityType.bloodPressureDiastolic]);
+      final diastolicUnits = preferredUnits.first.unit;
+      final quantities =
+          await HealthKitReporter.quantityQuery(QuantityType.bloodPressureDiastolic, diastolicUnits, predicate);
+
+      if (quantities.isNotEmpty) {
+        final latest = quantities.first;
+        final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
+        _updateResult('最新舒张压: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
+            '平均舒张压: ${averageValue.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
+            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+            '数据点数量: ${quantities.length}');
+      } else {
+        _updateResult('未找到舒张压数据');
       }
     } catch (e) {
       _updateResult('查询失败: $e');
