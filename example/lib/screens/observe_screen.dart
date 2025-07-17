@@ -16,7 +16,7 @@ class ObserveScreen extends StatefulWidget {
     required this.flutterLocalNotificationsPlugin,
   });
 
-  final dynamic flutterLocalNotificationsPlugin;
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   @override
   State<ObserveScreen> createState() => _ObserveScreenState();

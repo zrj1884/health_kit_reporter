@@ -103,11 +103,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               padding: const EdgeInsets.symmetric(horizontal: 0),
               indicatorPadding: const EdgeInsets.symmetric(horizontal: 0),
               tabs: [
+                _buildTab(Icons.storage, '数据同步'),
                 _buildTab(Icons.visibility, '数据读取'),
                 _buildTab(Icons.edit_note, '数据写入'),
                 _buildTab(Icons.monitor_heart, '实时监控'),
                 _buildTab(Icons.delete_forever, '数据删除'),
-                _buildTab(Icons.storage, '本地数据库'),
               ],
             ),
           ),
@@ -118,25 +118,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           _LazyTabView(
             index: 0,
-            child: const ReadScreen(),
+            child: HealthDatabaseScreen(
+              flutterLocalNotificationsPlugin: _flutterLocalNotificationsPlugin,
+            ),
           ),
           _LazyTabView(
             index: 1,
-            child: const WriteScreen(),
+            child: const ReadScreen(),
           ),
           _LazyTabView(
             index: 2,
+            child: const WriteScreen(),
+          ),
+          _LazyTabView(
+            index: 3,
             child: ObserveScreen(
               flutterLocalNotificationsPlugin: _flutterLocalNotificationsPlugin,
             ),
           ),
           _LazyTabView(
-            index: 3,
-            child: const DeleteScreen(),
-          ),
-          _LazyTabView(
             index: 4,
-            child: const HealthDatabaseScreen(),
+            child: const DeleteScreen(),
           ),
         ],
       ),

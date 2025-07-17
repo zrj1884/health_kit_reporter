@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../models/health_record.dart';
 import '../services/health_sync_service.dart';
@@ -8,7 +9,12 @@ import 'statistics_screen.dart';
 import 'health_filter_screen.dart';
 
 class HealthDatabaseScreen extends StatefulWidget {
-  const HealthDatabaseScreen({super.key});
+  const HealthDatabaseScreen({
+    super.key,
+    required this.flutterLocalNotificationsPlugin,
+  });
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   @override
   State<HealthDatabaseScreen> createState() => _HealthDatabaseScreenState();
@@ -43,11 +49,35 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     // 活动相关
     'HKQuantityTypeIdentifierStepCount',
     'HKQuantityTypeIdentifierDistanceWalkingRunning',
+    'HKQuantityTypeIdentifierDistanceCycling',
+    'HKQuantityTypeIdentifierDistanceWheelchair',
+    'HKQuantityTypeIdentifierDistanceSwimming',
+    'HKQuantityTypeIdentifierDistanceDownhillSnowSports',
     'HKQuantityTypeIdentifierActiveEnergyBurned',
     'HKQuantityTypeIdentifierBasalEnergyBurned',
     'HKQuantityTypeIdentifierFlightsClimbed',
     'HKQuantityTypeIdentifierAppleExerciseTime',
     'HKQuantityTypeIdentifierAppleStandTime',
+    'HKQuantityTypeIdentifierAppleMoveTime',
+    'HKQuantityTypeIdentifierAppleWalkingSteadiness',
+    'HKQuantityTypeIdentifierNikeFuel',
+    'HKQuantityTypeIdentifierPushCount',
+    'HKQuantityTypeIdentifierSwimmingStrokeCount',
+    'HKQuantityTypeIdentifierWalkingSpeed',
+    'HKQuantityTypeIdentifierWalkingDoubleSupportPercentage',
+    'HKQuantityTypeIdentifierWalkingAsymmetryPercentage',
+    'HKQuantityTypeIdentifierWalkingStepLength',
+    'HKQuantityTypeIdentifierSixMinuteWalkTestDistance',
+    'HKQuantityTypeIdentifierStairAscentSpeed',
+    'HKQuantityTypeIdentifierStairDescentSpeed',
+    'HKQuantityTypeIdentifierRunningStrideLength',
+    'HKQuantityTypeIdentifierRunningVerticalOscillation',
+    'HKQuantityTypeIdentifierRunningGroundContactTime',
+    'HKQuantityTypeIdentifierRunningPower',
+    'HKQuantityTypeIdentifierRunningSpeed',
+    'HKQuantityTypeIdentifierUVExposure',
+    'HKQuantityTypeIdentifierUnderwaterDepth',
+    'HKQuantityTypeIdentifierWaterTemperature',
 
     // 心脏相关
     'HKQuantityTypeIdentifierHeartRate',
@@ -55,6 +85,8 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     'HKQuantityTypeIdentifierWalkingHeartRateAverage',
     'HKQuantityTypeIdentifierHeartRateVariabilitySDNN',
     'HKQuantityTypeIdentifierVO2Max',
+    'HKQuantityTypeIdentifierHeartRateRecoveryOneMinute',
+    'HKQuantityTypeIdentifierAtrialFibrillationBurden',
 
     // 身体测量
     'HKQuantityTypeIdentifierBodyMass',
@@ -62,45 +94,74 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     'HKQuantityTypeIdentifierHeight',
     'HKQuantityTypeIdentifierBodyMassIndex',
     'HKQuantityTypeIdentifierLeanBodyMass',
+    'HKQuantityTypeIdentifierWaistCircumference',
+    'HKQuantityTypeIdentifierBodyTemperature',
+    'HKQuantityTypeIdentifierBasalBodyTemperature',
+    'HKQuantityTypeIdentifierAppleSleepingWristTemperature',
+    'HKQuantityTypeIdentifierNumberOfTimesFallen',
+    'HKQuantityTypeIdentifierNumberOfAlcoholicBeverages',
 
     // 营养
     'HKQuantityTypeIdentifierDietaryEnergyConsumed',
     'HKQuantityTypeIdentifierDietaryProtein',
     'HKQuantityTypeIdentifierDietaryCarbohydrates',
+    'HKQuantityTypeIdentifierDietaryFiber',
+    'HKQuantityTypeIdentifierDietarySugar',
     'HKQuantityTypeIdentifierDietaryFatTotal',
+    'HKQuantityTypeIdentifierDietaryFatPolyunsaturated',
+    'HKQuantityTypeIdentifierDietaryFatMonounsaturated',
+    'HKQuantityTypeIdentifierDietaryFatSaturated',
+    'HKQuantityTypeIdentifierDietaryCholesterol',
+    'HKQuantityTypeIdentifierDietarySodium',
+    'HKQuantityTypeIdentifierDietaryVitaminA',
+    'HKQuantityTypeIdentifierDietaryVitaminB6',
+    'HKQuantityTypeIdentifierDietaryVitaminB12',
+    'HKQuantityTypeIdentifierDietaryVitaminC',
+    'HKQuantityTypeIdentifierDietaryVitaminD',
+    'HKQuantityTypeIdentifierDietaryVitaminE',
+    'HKQuantityTypeIdentifierDietaryVitaminK',
+    'HKQuantityTypeIdentifierDietaryCalcium',
+    'HKQuantityTypeIdentifierDietaryIron',
+    'HKQuantityTypeIdentifierDietaryThiamin',
+    'HKQuantityTypeIdentifierDietaryRiboflavin',
+    'HKQuantityTypeIdentifierDietaryNiacin',
+    'HKQuantityTypeIdentifierDietaryFolate',
+    'HKQuantityTypeIdentifierDietaryBiotin',
+    'HKQuantityTypeIdentifierDietaryPantothenicAcid',
+    'HKQuantityTypeIdentifierDietaryPhosphorus',
+    'HKQuantityTypeIdentifierDietaryIodine',
+    'HKQuantityTypeIdentifierDietaryMagnesium',
+    'HKQuantityTypeIdentifierDietaryZinc',
+    'HKQuantityTypeIdentifierDietarySelenium',
+    'HKQuantityTypeIdentifierDietaryCopper',
+    'HKQuantityTypeIdentifierDietaryManganese',
+    'HKQuantityTypeIdentifierDietaryChromium',
+    'HKQuantityTypeIdentifierDietaryMolybdenum',
+    'HKQuantityTypeIdentifierDietaryChloride',
+    'HKQuantityTypeIdentifierDietaryPotassium',
+    'HKQuantityTypeIdentifierDietaryCaffeine',
     'HKQuantityTypeIdentifierDietaryWater',
-
-    // 睡眠
-    // 'HKCategoryTypeIdentifierSleepAnalysis',
-    // 'HKCategoryTypeIdentifierSleepChanges',
-
-    // 运动
-    // 'HKWorkoutTypeIdentifier',
-    // 'HKWorkoutTypeIdentifierWalking',
-    // 'HKWorkoutTypeIdentifierRunning',
-    // 'HKWorkoutTypeIdentifierCycling',
-    // 'HKWorkoutTypeIdentifierSwimming',
-    // 'HKWorkoutTypeIdentifierYoga',
-    // 'HKWorkoutTypeIdentifierStrengthTraining',
 
     // 生命体征
     'HKQuantityTypeIdentifierBloodPressureSystolic',
     'HKQuantityTypeIdentifierBloodPressureDiastolic',
     'HKQuantityTypeIdentifierRespiratoryRate',
-    'HKQuantityTypeIdentifierBodyTemperature',
     'HKQuantityTypeIdentifierOxygenSaturation',
+    'HKQuantityTypeIdentifierPeripheralPerfusionIndex',
+    'HKQuantityTypeIdentifierBloodGlucose',
+    'HKQuantityTypeIdentifierBloodAlcoholContent',
+    'HKQuantityTypeIdentifierForcedVitalCapacity',
+    'HKQuantityTypeIdentifierForcedExpiratoryVolume1',
+    'HKQuantityTypeIdentifierPeakExpiratoryFlowRate',
 
     // 听力
-    // 'HKQuantityTypeIdentifierEnvironmentalAudioExposure',
-    // 'HKQuantityTypeIdentifierHeadphoneAudioExposure',
+    'HKQuantityTypeIdentifierEnvironmentalAudioExposure',
+    'HKQuantityTypeIdentifierHeadphoneAudioExposure',
 
-    // 生殖健康
-    // 'HKCategoryTypeIdentifierMenstrualFlow',
-    // 'HKCategoryTypeIdentifierIntermenstrualBleeding',
-    // 'HKCategoryTypeIdentifierSexualActivity',
-
-    // 心理健康
-    // 'HKCategoryTypeIdentifierMindfulSession',
+    // 其他健康指标
+    'HKQuantityTypeIdentifierElectrodermalActivity',
+    'HKQuantityTypeIdentifierInhalerUsage',
+    'HKQuantityTypeIdentifierInsulinDelivery',
   ];
 
   @override
@@ -197,10 +258,14 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
       final result = await _syncService.startSync(
         _availableIdentifiers,
         onDataChanged: (identifier) {
+          final displayName = HealthIconService.getDisplayNameForIdentifier(identifier);
           if (mounted) {
-            IOSSnackBar.showInfo(context,
-                message: '检测到 ${HealthIconService.getDisplayNameForIdentifier(identifier)} 数据变化');
+            IOSSnackBar.showInfo(context, message: '检测到 $displayName 数据变化');
           }
+
+          const iOSDetails = DarwinNotificationDetails();
+          const details = NotificationDetails(iOS: iOSDetails);
+          widget.flutterLocalNotificationsPlugin.show(0, '健康数据更新', displayName, details);
         },
         onSyncComplete: (newRecords, deletedIds) async {
           await _loadRecords();

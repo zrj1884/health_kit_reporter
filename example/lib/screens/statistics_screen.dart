@@ -300,12 +300,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         return Icons.bedtime;
       case '运动':
         return Icons.sports_soccer;
+      case '生命体征':
+        return Icons.favorite;
       case '听力':
         return Icons.hearing;
       case '生殖健康':
         return Icons.calendar_today;
       case '心理健康':
         return Icons.self_improvement;
+      case '其他健康指标':
+        return Icons.health_and_safety;
       default:
         return Icons.health_and_safety;
     }
@@ -326,14 +330,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         return Colors.purple;
       case '运动':
         return Colors.indigo;
+      case '生命体征':
+        return Colors.red;
       case '听力':
         return Colors.amber;
       case '生殖健康':
         return Colors.pink;
       case '心理健康':
         return Colors.teal;
+      case '其他健康指标':
+        return Colors.brown;
       default:
-        return Colors.grey;
+        return Colors.brown;
     }
   }
 
