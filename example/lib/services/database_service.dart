@@ -243,12 +243,33 @@ class DatabaseService {
     });
   }
 
+  /// 获取唯一的数据类型标识符
+  Future<List<String>> getUniqueIdentifiers() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      'SELECT DISTINCT identifier FROM health_records ORDER BY identifier',
+    );
+
+    return maps.map((map) => map['identifier'] as String).toList();
+  }
+
+  /// 获取唯一的数据来源名称
+  Future<List<String>> getUniqueSourceNames() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      'SELECT DISTINCT source_name FROM health_records WHERE source_name IS NOT NULL AND source_name != \'\' ORDER BY source_name',
+    );
+
+    return maps.map((map) => map['source_name'] as String).toList();
+  }
+
   /// 根据条件过滤记录
   Future<List<HealthRecord>> getFilteredRecords({
     String? identifier,
     DateTime? startDate,
     DateTime? endDate,
     bool? isValid,
+    String? sourceName,
     int? limit,
     int? offset,
   }) async {
@@ -277,6 +298,11 @@ class DatabaseService {
       whereArgs.add(isValid ? 1 : 0);
     }
 
+    if (sourceName != null) {
+      whereConditions.add('source_name = ?');
+      whereArgs.add(sourceName);
+    }
+
     final whereClause = whereConditions.isNotEmpty ? whereConditions.join(' AND ') : null;
 
     final List<Map<String, dynamic>> maps = await db.query(
@@ -299,6 +325,7 @@ class DatabaseService {
     DateTime? startDate,
     DateTime? endDate,
     bool? isValid,
+    String? sourceName,
   }) async {
     final db = await database;
 
@@ -325,6 +352,11 @@ class DatabaseService {
       whereArgs.add(isValid ? 1 : 0);
     }
 
+    if (sourceName != null) {
+      whereConditions.add('source_name = ?');
+      whereArgs.add(sourceName);
+    }
+
     final whereClause = whereConditions.isNotEmpty ? whereConditions.join(' AND ') : null;
 
     final result = await db.rawQuery(
@@ -333,16 +365,6 @@ class DatabaseService {
     );
 
     return Sqflite.firstIntValue(result) ?? 0;
-  }
-
-  /// 获取唯一的数据类型标识符
-  Future<List<String>> getUniqueIdentifiers() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.rawQuery(
-      'SELECT DISTINCT identifier FROM health_records ORDER BY identifier',
-    );
-
-    return maps.map((map) => map['identifier'] as String).toList();
   }
 
   /// 获取统计信息

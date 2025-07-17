@@ -27,6 +27,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
   bool? _isValidFilter;
+  String? _selectedSourceName;
   int _totalFilteredRecords = 0;
 
   // 分页
@@ -129,6 +130,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         startDate: _startDate,
         endDate: _endDate,
         isValid: _isValidFilter,
+        sourceName: _selectedSourceName,
         limit: _pageSize,
         offset: _currentPage * _pageSize,
       );
@@ -161,12 +163,17 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     try {
       final statistics = await _syncService.getStatistics();
 
-      if (_selectedIdentifier != null || _startDate != null || _endDate != null || _isValidFilter != null) {
+      if (_selectedIdentifier != null ||
+          _startDate != null ||
+          _endDate != null ||
+          _isValidFilter != null ||
+          _selectedSourceName != null) {
         _totalFilteredRecords = await _syncService.getRecordCount(
           identifier: _selectedIdentifier,
           startDate: _startDate,
           endDate: _endDate,
           isValid: _isValidFilter,
+          sourceName: _selectedSourceName,
         );
       }
       if (mounted) {
@@ -241,6 +248,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
           initialStartDate: _startDate,
           initialEndDate: _endDate,
           initialIsValid: _isValidFilter,
+          initialSourceName: _selectedSourceName,
         ),
       ),
     );
@@ -250,12 +258,14 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
       _startDate = result['startDate'];
       _endDate = result['endDate'];
       _isValidFilter = result['isValid'];
+      _selectedSourceName = result['sourceName'];
 
       _totalFilteredRecords = await _syncService.getRecordCount(
         identifier: _selectedIdentifier,
         startDate: _startDate,
         endDate: _endDate,
         isValid: _isValidFilter,
+        sourceName: _selectedSourceName,
       );
 
       setState(() {
@@ -359,7 +369,11 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   /// 获取当前过滤条件下的总记录数
   int _getFilteredTotalCount() {
     // 如果有过滤条件，返回当前显示的记录数
-    if (_selectedIdentifier != null || _startDate != null || _endDate != null || _isValidFilter != null) {
+    if (_selectedIdentifier != null ||
+        _startDate != null ||
+        _endDate != null ||
+        _isValidFilter != null ||
+        _selectedSourceName != null) {
       return _totalFilteredRecords;
     }
     // 如果没有过滤条件，返回数据库总记录数

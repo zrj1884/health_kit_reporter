@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import '../services/health_icon_service.dart';
+import '../services/health_sync_service.dart';
 import '../components/ios_snackbar.dart';
 
 class HealthFilterScreen extends StatefulWidget {
@@ -8,6 +9,7 @@ class HealthFilterScreen extends StatefulWidget {
   final DateTime? initialStartDate;
   final DateTime? initialEndDate;
   final bool? initialIsValid;
+  final String? initialSourceName;
 
   const HealthFilterScreen({
     super.key,
@@ -15,6 +17,7 @@ class HealthFilterScreen extends StatefulWidget {
     this.initialStartDate,
     this.initialEndDate,
     this.initialIsValid,
+    this.initialSourceName,
   });
 
   @override
@@ -26,8 +29,12 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
   bool? _isValidFilter;
+  String? _selectedSourceName;
   final int maxShowCount = 8;
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _sourceSearchController = TextEditingController();
+  final HealthSyncService _syncService = HealthSyncService();
+  List<String> _availableSourceNames = [];
 
   @override
   void initState() {
@@ -36,12 +43,29 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
     _startDate = widget.initialStartDate;
     _endDate = widget.initialEndDate;
     _isValidFilter = widget.initialIsValid;
+    _selectedSourceName = widget.initialSourceName;
+    _loadSourceNames();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _sourceSearchController.dispose();
     super.dispose();
+  }
+
+  /// 加载可用的数据来源
+  Future<void> _loadSourceNames() async {
+    try {
+      final sourceNames = await _syncService.getUniqueSourceNames();
+      setState(() {
+        _availableSourceNames = sourceNames;
+      });
+    } catch (e) {
+      if (mounted) {
+        IOSSnackBar.showError(context, message: '加载数据来源失败: $e');
+      }
+    }
   }
 
   @override
@@ -68,6 +92,10 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
               _buildSectionTitle('数据类型'),
               const SizedBox(height: 8),
               _buildDataTypeSelector(),
+              const SizedBox(height: 24),
+              _buildSectionTitle('数据来源'),
+              const SizedBox(height: 8),
+              _buildSourceNameSelector(),
               const SizedBox(height: 24),
               _buildSectionTitle('日期范围'),
               const SizedBox(height: 8),
@@ -263,6 +291,113 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
         // 可以在这里处理菜单状态变化
         if (!isOpen) {
           _searchController.clear();
+        }
+      },
+    );
+  }
+
+  /// 构建数据来源选择器
+  Widget _buildSourceNameSelector() {
+    return DropdownButton2<String>(
+      value: _selectedSourceName,
+      hint: const Text(
+        '选择数据来源',
+        style: TextStyle(
+          fontSize: 16,
+          color: Colors.grey,
+        ),
+      ),
+      items: [
+        const DropdownMenuItem(value: null, child: Text('全部')),
+        ..._getGroupedSourceNameItems(),
+      ],
+      onChanged: (value) {
+        // 忽略分类标题的选择
+        if (value != null && value.startsWith('__CATEGORY_')) {
+          return;
+        }
+        setState(() {
+          _selectedSourceName = value;
+        });
+      },
+      buttonStyleData: ButtonStyleData(
+        height: 56,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        elevation: 0,
+      ),
+      dropdownStyleData: DropdownStyleData(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        elevation: 8,
+        offset: const Offset(0, -8),
+      ),
+      menuItemStyleData: const MenuItemStyleData(
+        height: 40,
+        padding: EdgeInsets.symmetric(horizontal: 16),
+      ),
+      iconStyleData: const IconStyleData(
+        icon: Icon(Icons.keyboard_arrow_down),
+        iconSize: 20,
+        iconEnabledColor: Colors.grey,
+        iconDisabledColor: Colors.grey,
+      ),
+      dropdownSearchData: DropdownSearchData(
+        searchController: _sourceSearchController,
+        searchInnerWidgetHeight: 50,
+        searchInnerWidget: Container(
+          height: 60,
+          padding: const EdgeInsets.only(
+            top: 8,
+            bottom: 4,
+            right: 8,
+            left: 8,
+          ),
+          child: TextFormField(
+            expands: true,
+            maxLines: null,
+            controller: _sourceSearchController,
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              hintText: '搜索数据来源...',
+              hintStyle: const TextStyle(fontSize: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              suffixIcon: _sourceSearchController.text.isNotEmpty
+                  ? IconButton(
+                      onPressed: () {
+                        _sourceSearchController.clear();
+                      },
+                      icon: const Icon(Icons.clear, color: Colors.grey),
+                    )
+                  : null,
+            ),
+          ),
+        ),
+        searchMatchFn: (item, searchValue) {
+          if (item.value == null) {
+            return false;
+          }
+          return item.value!.toLowerCase().contains(searchValue.toLowerCase());
+        },
+      ),
+      onMenuStateChange: (isOpen) {
+        // 可以在这里处理菜单状态变化
+        if (!isOpen) {
+          _sourceSearchController.clear();
         }
       },
     );
@@ -472,6 +607,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
       'startDate': _startDate,
       'endDate': _endDate,
       'isValid': _isValidFilter,
+      'sourceName': _selectedSourceName,
     });
   }
 
@@ -482,6 +618,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
       _startDate = null;
       _endDate = null;
       _isValidFilter = null;
+      _selectedSourceName = null;
     });
   }
 
@@ -567,6 +704,51 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
                   Text(HealthIconService.getDisplayNameForIdentifier(identifier)),
                 ],
               ),
+            ),
+          ));
+        }
+      }
+    });
+
+    return items;
+  }
+
+  /// 获取按分类组织的数据来源下拉菜单项
+  List<DropdownMenuItem<String>> _getGroupedSourceNameItems() {
+    final Map<String, List<String>> groupedSourceNames = {
+      '健康应用': _availableSourceNames.where((name) => name.contains('Health')).toList(),
+      '第三方应用': _availableSourceNames.where((name) => !name.contains('Health')).toList(),
+    };
+
+    final List<DropdownMenuItem<String>> items = [];
+
+    groupedSourceNames.forEach((category, sourceNames) {
+      // 只添加有数据的分类
+      if (sourceNames.isNotEmpty) {
+        // 添加分类标题
+        items.add(DropdownMenuItem<String>(
+          value: '__CATEGORY_${category}__', // 使用特殊值标识分类标题
+          enabled: false,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              '── $category ──',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ));
+
+        // 添加该分类下的所有数据来源
+        for (final sourceName in sourceNames) {
+          items.add(DropdownMenuItem<String>(
+            value: sourceName,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(sourceName),
             ),
           ));
         }

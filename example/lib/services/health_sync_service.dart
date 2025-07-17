@@ -253,6 +253,7 @@ class HealthSyncService {
     DateTime? startDate,
     DateTime? endDate,
     bool? isValid,
+    String? sourceName,
     int? limit,
     int? offset,
   }) async {
@@ -261,6 +262,7 @@ class HealthSyncService {
       startDate: startDate,
       endDate: endDate,
       isValid: isValid,
+      sourceName: sourceName,
       limit: limit,
       offset: offset,
     );
@@ -272,12 +274,14 @@ class HealthSyncService {
     DateTime? startDate,
     DateTime? endDate,
     bool? isValid,
+    String? sourceName,
   }) async {
     return await _databaseService.getRecordCount(
       identifier: identifier,
       startDate: startDate,
       endDate: endDate,
       isValid: isValid,
+      sourceName: sourceName,
     );
   }
 
@@ -299,6 +303,11 @@ class HealthSyncService {
   /// 获取唯一的数据类型标识符
   Future<List<String>> getUniqueIdentifiers() async {
     return await _databaseService.getUniqueIdentifiers();
+  }
+
+  /// 获取唯一的数据来源名称
+  Future<List<String>> getUniqueSourceNames() async {
+    return await _databaseService.getUniqueSourceNames();
   }
 
   /// 获取指定时间范围内的记录
