@@ -445,6 +445,7 @@ class HealthIconService {
         identifier.contains('Walking') ||
         identifier.contains('Running') ||
         identifier.contains('Stair') ||
+        identifier.contains('FlightsClimbed') ||
         identifier.contains('UV') ||
         identifier.contains('Underwater') ||
         identifier.contains('Water') ||
@@ -452,7 +453,7 @@ class HealthIconService {
         identifier.contains('PushCount') ||
         identifier.contains('Swimming')) {
       return '活动';
-    } else if (identifier.contains('Heart') ||
+    } else if ((identifier.contains('Heart') && !identifier.contains('BloodPressure')) ||
         identifier.contains('VO2Max') ||
         identifier.contains('AtrialFibrillation')) {
       return '心脏';
@@ -462,7 +463,7 @@ class HealthIconService {
         identifier.contains('Waist') ||
         identifier.contains('Temperature') ||
         identifier.contains('Fallen') ||
-        identifier.contains('Alcoholic')) {
+        (identifier.contains('Alcoholic') && !identifier.contains('BloodAlcohol'))) {
       return '身体';
     } else if (identifier.contains('Dietary')) {
       return '营养';
