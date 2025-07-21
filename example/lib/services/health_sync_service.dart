@@ -66,9 +66,9 @@ class HealthSyncService {
     }
 
     // 2. 设置观察者查询监听变化
-    // if (result) {
-    //   result = await _setupObserverQuery();
-    // }
+    if (result) {
+      result = await _setupObserverQuery();
+    }
 
     // 3. 设置锚点对象查询进行增量同步
     if (result) {
@@ -128,6 +128,8 @@ class HealthSyncService {
         _syncingIdentifiers,
         null,
         onUpdate: (identifier) async {
+          debugPrint('观察者查询更新: ${HealthIconService.getDisplayNameForIdentifier(identifier)}');
+
           _onDataChanged?.call(identifier);
 
           // 当收到变化通知时，触发增量同步

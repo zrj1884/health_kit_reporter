@@ -261,9 +261,9 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         _availableIdentifiers,
         onDataChanged: (identifier) {
           final displayName = HealthIconService.getDisplayNameForIdentifier(identifier);
-          if (mounted) {
-            IOSSnackBar.showInfo(context, message: '检测到 $displayName 数据变化');
-          }
+          // if (mounted) {
+          //   IOSSnackBar.showInfo(context, message: '检测到 $displayName 数据变化');
+          // }
 
           const iOSDetails = DarwinNotificationDetails();
           const details = NotificationDetails(iOS: iOSDetails);
@@ -273,13 +273,8 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
           await _loadRecords();
           await _loadStatistics();
           // 同步完成后滚动到顶部
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }
+          _scrollToTop();
+
           if (newRecords.isNotEmpty) {
             if (mounted) {
               IOSSnackBar.showSuccess(context, message: '同步完成: ${newRecords.length} 条新记录');
@@ -313,13 +308,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     _currentPage = 0;
     _loadRecords();
     // 应用过滤器时也滚动到顶部
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
+    _scrollToTop();
   }
 
   Future<void> _showFilterDialog() async {
@@ -356,13 +345,25 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
       });
 
       // 过滤器应用后滚动到顶部
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
+      _scrollToTop();
+    }
+  }
+
+  void _refreshList() {
+    _currentPage = 0;
+    _loadRecords();
+    _loadStatistics();
+    // 滚动到列表顶部
+    _scrollToTop();
+  }
+
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
@@ -460,14 +461,19 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     }
   }
 
-  /// 获取当前过滤条件下的总记录数
-  int _getFilteredTotalCount() {
-    // 如果有过滤条件，返回当前显示的记录数
-    if (_selectedIdentifier != null ||
+  /// 检查当前是否有过滤条件
+  bool get _hasActiveFilters {
+    return _selectedIdentifier != null ||
         _startDate != null ||
         _endDate != null ||
         _isValidFilter != null ||
-        _selectedSourceName != null) {
+        _selectedSourceName != null;
+  }
+
+  /// 获取当前过滤条件下的总记录数
+  int _getFilteredTotalCount() {
+    // 如果有过滤条件，返回当前显示的记录数
+    if (_hasActiveFilters) {
       return _totalFilteredRecords;
     }
     // 如果没有过滤条件，返回数据库总记录数
@@ -482,7 +488,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         children: [
           // 紧凑的顶部状态栏
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border(
@@ -556,6 +562,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                 // 右侧：快捷按钮
                 Row(
                   mainAxisSize: MainAxisSize.min,
+                  spacing: 12,
                   children: [
                     _buildCompactIconButton(
                       icon: Icons.analytics,
@@ -563,28 +570,22 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                       tooltip: '统计信息',
                     ),
                     _buildCompactIconButton(
-                      icon: Icons.filter_list,
+                      icon: _hasActiveFilters ? Icons.filter_list : Icons.filter_list_off,
                       onPressed: _showFilterDialog,
                       tooltip: '过滤',
+                      iconColor: _hasActiveFilters ? const Color(0xFFFF9500) : null,
                     ),
                     _buildCompactIconButton(
                       icon: Icons.refresh,
-                      onPressed: () {
-                        _currentPage = 0;
-                        _loadRecords();
-                        _loadStatistics();
-                        // 滚动到列表顶部
-                        if (_scrollController.hasClients) {
-                          _scrollController.animateTo(
-                            0,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
-                      },
+                      onPressed: _refreshList,
                       tooltip: '刷新',
                     ),
-                    _buildCompactPopupMenu(),
+                    _buildCompactIconButton(
+                      icon: Icons.delete_forever,
+                      onPressed: _clearAllRecords,
+                      tooltip: '清空所有记录',
+                      iconColor: const Color(0xFFFF3B30),
+                    ),
                   ],
                 ),
               ],
@@ -797,67 +798,21 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     required IconData icon,
     required VoidCallback onPressed,
     required String tooltip,
+    Color? iconColor,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(left: 4),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(6),
-          child: Container(
-            padding: const EdgeInsets.all(6),
-            child: Icon(
-              icon,
-              size: 18,
-              color: const Color(0xFF007AFF),
-            ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          child: Icon(
+            icon,
+            size: 18,
+            color: iconColor ?? const Color(0xFF007AFF),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCompactPopupMenu() {
-    return Container(
-      margin: const EdgeInsets.only(left: 4),
-      child: PopupMenuButton<String>(
-        icon: const Icon(
-          Icons.more_vert,
-          color: Color(0xFF007AFF),
-          size: 18,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        itemBuilder: (context) => [
-          PopupMenuItem<String>(
-            value: 'clear',
-            child: Row(
-              children: [
-                Icon(
-                  Icons.delete_forever,
-                  color: const Color(0xFFFF3B30),
-                  size: 18,
-                ),
-                const SizedBox(width: 10),
-                const Text(
-                  '清空所有记录',
-                  style: TextStyle(
-                    color: Color(0xFFFF3B30),
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-        onSelected: (value) {
-          if (value == 'clear') {
-            _clearAllRecords();
-          }
-        },
       ),
     );
   }
