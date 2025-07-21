@@ -10,6 +10,7 @@ import 'package:health_kit_reporter/model/update_frequency.dart';
 
 import '../models/health_record.dart';
 import 'database_service.dart';
+import 'health_icon_service.dart';
 
 /// 健康数据同步服务
 /// 结合observerQuery和anchoredObjectQuery实现数据同步
@@ -184,8 +185,9 @@ class HealthSyncService {
         _syncingIdentifiers,
         predicate,
         useCachedAnchor: useCachedAnchor, // 根据是否首次查询决定是否使用缓存
-        onUpdate: (samples, deletedObjects) async {
-          debugPrint('锚点对象查询更新: 新增${samples.length}, 删除${deletedObjects.length}');
+        onUpdate: (samples, deletedObjects, identifier) async {
+          debugPrint(
+              '锚点对象查询更新: 新增${samples.length}, 删除${deletedObjects.length}, 标识符: ${HealthIconService.getDisplayNameForIdentifier(identifier)}');
           await _handleAnchoredObjectUpdate(samples, deletedObjects);
         },
       );

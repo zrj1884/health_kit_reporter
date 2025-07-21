@@ -163,7 +163,8 @@ class HealthKitReporter {
   /// Provide [useCachedAnchor] to control whether to use locally cached anchor.
   ///
   static StreamSubscription<dynamic> anchoredObjectQuery(List<String> identifiers, Predicate predicate,
-      {required Function(List<Sample>, List<DeletedObject>) onUpdate, bool useCachedAnchor = false}) {
+      {required Function(List<Sample>, List<DeletedObject>, String identifier) onUpdate,
+      bool useCachedAnchor = false}) {
     final arguments = <String, dynamic>{
       'identifiers': identifiers,
       'useCachedAnchor': useCachedAnchor,
@@ -187,7 +188,9 @@ class HealthKitReporter {
         final deletedObject = DeletedObject.fromJson(json);
         deletedObjects.add(deletedObject);
       }
-      onUpdate(samples, deletedObjects);
+
+      final identifier = map['identifier'];
+      onUpdate(samples, deletedObjects, identifier);
     });
   }
 

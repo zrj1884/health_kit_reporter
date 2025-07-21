@@ -9,6 +9,7 @@ import 'package:health_kit_reporter/model/update_frequency.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../components/index.dart';
+import '../services/health_icon_service.dart';
 
 class ObserveScreen extends StatefulWidget {
   const ObserveScreen({
@@ -152,8 +153,9 @@ class _ObserveScreenState extends State<ObserveScreen> with HealthKitReporterMix
         identifiers,
         predicate,
         useCachedAnchor: useCachedAnchor, // 使用新的参数
-        onUpdate: (samples, deletedObjects) {
-          final message = '锚点查询更新: ${samples.length} 个样本, ${deletedObjects.length} 个删除对象';
+        onUpdate: (samples, deletedObjects, identifier) {
+          final message =
+              '锚点查询更新: ${samples.length} 个样本, ${deletedObjects.length} 个删除对象, 标识符: ${HealthIconService.getDisplayNameForIdentifier(identifier)}';
           _addObservation(message);
           debugPrint('Anchor cache update: $message');
         },
