@@ -108,20 +108,18 @@ class HealthKitReporter {
   /// [MethodChannel] link to [SwiftHealthKitReporterPlugin.swift]
   /// Will invoke a bridge function of the plugin.
   ///
-  static const MethodChannel _methodChannel =
-      MethodChannel('health_kit_reporter_method_channel');
+  static const MethodChannel _methodChannel = MethodChannel('health_kit_reporter_method_channel');
 
   /// [EventChannel] link to [SwiftHealthKitReporterPlugin.swift]
   /// Will invoke a bridge function of the plugin.
   ///
-  static const EventChannel _observerQueryChannel =
-      EventChannel('health_kit_reporter_event_channel_observer_query');
+  static const EventChannel _observerQueryChannel = EventChannel('health_kit_reporter_event_channel_observer_query');
 
   /// [EventChannel] link to [SwiftHealthKitReporterPlugin.swift]
   /// Will handle event exchanges of the plugin.
   ///
-  static const EventChannel _statisticsCollectionQueryChannel = EventChannel(
-      'health_kit_reporter_event_channel_statistics_collection_query');
+  static const EventChannel _statisticsCollectionQueryChannel =
+      EventChannel('health_kit_reporter_event_channel_statistics_collection_query');
 
   /// [EventChannel] link to [SwiftHealthKitReporterPlugin.swift]
   /// Will handle event exchanges of the plugin.
@@ -141,8 +139,7 @@ class HealthKitReporter {
   /// inside [HealthKit].
   /// Provide the [predicate] to set the date interval.
   ///
-  static StreamSubscription<dynamic> observerQuery(
-      List<String> identifiers, Predicate? predicate,
+  static StreamSubscription<dynamic> observerQuery(List<String> identifiers, Predicate? predicate,
       {required Function(String) onUpdate}) {
     final arguments = <String, dynamic>{
       'identifiers': identifiers,
@@ -150,9 +147,7 @@ class HealthKitReporter {
     if (predicate != null) {
       arguments.addAll(predicate.map);
     }
-    return _observerQueryChannel
-        .receiveBroadcastStream(arguments)
-        .listen((event) {
+    return _observerQueryChannel.receiveBroadcastStream(arguments).listen((event) {
       final map = Map<String, dynamic>.from(event);
       final identifier = map['identifier'];
       onUpdate(identifier);
@@ -165,17 +160,16 @@ class HealthKitReporter {
   /// there were changes regarding to the provided [identifier]
   /// inside [HealthKit].
   /// Provide the [predicate] to set the date interval.
+  /// Provide [useCachedAnchor] to control whether to use locally cached anchor.
   ///
-  static StreamSubscription<dynamic> anchoredObjectQuery(
-      List<String> identifiers, Predicate predicate,
-      {required Function(List<Sample>, List<DeletedObject>) onUpdate}) {
+  static StreamSubscription<dynamic> anchoredObjectQuery(List<String> identifiers, Predicate predicate,
+      {required Function(List<Sample>, List<DeletedObject>) onUpdate, bool useCachedAnchor = false}) {
     final arguments = <String, dynamic>{
       'identifiers': identifiers,
+      'useCachedAnchor': useCachedAnchor,
     };
     arguments.addAll(predicate.map);
-    return _anchoredObjectQueryChannel
-        .receiveBroadcastStream(arguments)
-        .listen((event) {
+    return _anchoredObjectQueryChannel.receiveBroadcastStream(arguments).listen((event) {
       final map = LinkedHashMap<String, dynamic>.from(event);
       final samplesList = List.from(map['samples']);
       final samples = <Sample>[];
@@ -204,13 +198,10 @@ class HealthKitReporter {
   /// inside [HealthKit]
   /// Provide the [predicate] to set the date interval.
   ///
-  static StreamSubscription<dynamic> queryActivitySummaryUpdates(
-      Predicate predicate,
+  static StreamSubscription<dynamic> queryActivitySummaryUpdates(Predicate predicate,
       {required Function(List<ActivitySummary>) onUpdate}) {
     final arguments = predicate.map;
-    return _queryActivitySummaryChannel
-        .receiveBroadcastStream(arguments)
-        .listen((event) {
+    return _queryActivitySummaryChannel.receiveBroadcastStream(arguments).listen((event) {
       final List<dynamic> list = jsonDecode(event);
       final activitySummaries = <ActivitySummary>[];
       for (final Map<String, dynamic> map in list) {
@@ -232,13 +223,8 @@ class HealthKitReporter {
   /// Set the time interval with [enumerateFrom] and [enumerateTo] accordingly.
   /// Set the grouping by [intervalComponents]
   ///
-  static StreamSubscription<dynamic> statisticsCollectionQuery(
-      List<PreferredUnit> preferredUnits,
-      Predicate predicate,
-      DateTime anchorDate,
-      DateTime enumerateFrom,
-      DateTime enumerateTo,
-      DateComponents intervalComponents,
+  static StreamSubscription<dynamic> statisticsCollectionQuery(List<PreferredUnit> preferredUnits, Predicate predicate,
+      DateTime anchorDate, DateTime enumerateFrom, DateTime enumerateTo, DateComponents intervalComponents,
       {required Function(Statistics) onUpdate}) {
     final arguments = {
       'preferredUnits': preferredUnits.map((e) => e.map).toList(),
@@ -248,9 +234,7 @@ class HealthKitReporter {
       'intervalComponents': intervalComponents.map,
     };
     arguments.addAll(predicate.map);
-    return _statisticsCollectionQueryChannel
-        .receiveBroadcastStream(arguments)
-        .listen((event) {
+    return _statisticsCollectionQueryChannel.receiveBroadcastStream(arguments).listen((event) {
       final json = jsonDecode(event);
       final statistics = Statistics.fromJson(json);
       onUpdate(statistics);
@@ -276,8 +260,7 @@ class HealthKitReporter {
   /// - [SeriesType]
   /// - [WorkoutType]
   ///
-  static Future<bool> requestAuthorization(
-      List<String> toRead, List<String> toWrite) async {
+  static Future<bool> requestAuthorization(List<String> toRead, List<String> toWrite) async {
     final arguments = {
       'toRead': toRead,
       'toWrite': toWrite,
@@ -285,8 +268,7 @@ class HealthKitReporter {
     return await _methodChannel.invokeMethod('requestAuthorization', arguments);
   }
 
-  static Future<bool> requestClinicalRecordsAuthorization(
-      List<String> toRead) async {
+  static Future<bool> requestClinicalRecordsAuthorization(List<String> toRead) async {
     final arguments = {
       'toRead': toRead,
       'toWrite': [],
@@ -297,11 +279,9 @@ class HealthKitReporter {
   /// Returns preferred units for provided [types].
   /// Usage is only for [QuantityType]
   ///
-  static Future<List<PreferredUnit>> preferredUnits(
-      List<QuantityType> types) async {
+  static Future<List<PreferredUnit>> preferredUnits(List<QuantityType> types) async {
     final arguments = types.map((e) => e.identifier).toList();
-    final result =
-        await _methodChannel.invokeMethod('preferredUnits', arguments);
+    final result = await _methodChannel.invokeMethod('preferredUnits', arguments);
     final List<dynamic> list = jsonDecode(result);
     final preferredUnits = <PreferredUnit>[];
     for (final Map<String, dynamic> map in list) {
@@ -324,11 +304,9 @@ class HealthKitReporter {
 
   /// Returns [HeartbeatSeries] sample for the provided time interval predicate [predicate].
   ///
-  static Future<List<HeartbeatSeries>> heartbeatSeriesQuery(
-      Predicate predicate) async {
+  static Future<List<HeartbeatSeries>> heartbeatSeriesQuery(Predicate predicate) async {
     final arguments = predicate.map;
-    final result =
-        await _methodChannel.invokeMethod('heartbeatSeriesQuery', arguments);
+    final result = await _methodChannel.invokeMethod('heartbeatSeriesQuery', arguments);
     final List<dynamic> list = jsonDecode(result);
     final series = <HeartbeatSeries>[];
     for (final Map<String, dynamic> map in list) {
@@ -340,11 +318,9 @@ class HealthKitReporter {
 
   /// Returns [WorkoutRoute] sample for the provided time interval predicate [predicate].
   ///
-  static Future<List<WorkoutRoute>> workoutRouteQuery(
-      Predicate predicate) async {
+  static Future<List<WorkoutRoute>> workoutRouteQuery(Predicate predicate) async {
     final arguments = predicate.map;
-    final result =
-        await _methodChannel.invokeMethod('workoutRouteQuery', arguments);
+    final result = await _methodChannel.invokeMethod('workoutRouteQuery', arguments);
     final List<dynamic> list = jsonDecode(result);
     final routes = <WorkoutRoute>[];
     for (final Map<String, dynamic> map in list) {
@@ -359,15 +335,13 @@ class HealthKitReporter {
   ///
   /// Warning: The [unit] should be valid. See [preferredUnits].
   ///
-  static Future<List<Quantity>> quantityQuery(
-      QuantityType type, String unit, Predicate predicate) async {
+  static Future<List<Quantity>> quantityQuery(QuantityType type, String unit, Predicate predicate) async {
     final arguments = <String, dynamic>{
       'identifier': type.identifier,
       'unit': unit,
     };
     arguments.addAll(predicate.map);
-    final result =
-        await _methodChannel.invokeMethod('quantityQuery', arguments);
+    final result = await _methodChannel.invokeMethod('quantityQuery', arguments);
     final List<dynamic> list = jsonDecode(result);
     final quantities = <Quantity>[];
     for (final Map<String, dynamic> map in list) {
@@ -380,14 +354,12 @@ class HealthKitReporter {
   /// Returns [Category] samples for the provided [type]
   /// and the time interval predicate [predicate].
   ///
-  static Future<List<Category>> categoryQuery(
-      CategoryType type, Predicate predicate) async {
+  static Future<List<Category>> categoryQuery(CategoryType type, Predicate predicate) async {
     final arguments = <String, dynamic>{
       'identifier': type.identifier,
     };
     arguments.addAll(predicate.map);
-    final result =
-        await _methodChannel.invokeMethod('categoryQuery', arguments);
+    final result = await _methodChannel.invokeMethod('categoryQuery', arguments);
     final List<dynamic> list = jsonDecode(result);
     final categories = <Category>[];
     for (final Map<String, dynamic> map in list) {
@@ -400,8 +372,7 @@ class HealthKitReporter {
   /// Returns [Workout] samples for the provided
   /// time interval predicate [predicate].
   /// [queryOption] parameter represents the options passable to the native HealthKit sample query
-  static Future<List<Workout>> workoutQuery(Predicate predicate,
-      {SampleQueryOption? queryOption}) async {
+  static Future<List<Workout>> workoutQuery(Predicate predicate, {SampleQueryOption? queryOption}) async {
     var arguments = <String, dynamic>{};
     arguments.addAll(predicate.map);
     if (queryOption != null) {
@@ -420,15 +391,13 @@ class HealthKitReporter {
   /// Returns [Electrocardiogram] samples for the provided
   /// time interval predicate [predicate].
   ///
-  static Future<List<Electrocardiogram>> electrocardiogramQuery(
-      Predicate predicate,
+  static Future<List<Electrocardiogram>> electrocardiogramQuery(Predicate predicate,
       {bool withVoltageMeasurements = false}) async {
     final arguments = <String, dynamic>{
       'withVoltageMeasurements': withVoltageMeasurements,
     };
     arguments.addAll(predicate.map);
-    final result =
-        await _methodChannel.invokeMethod('electrocardiogramQuery', arguments);
+    final result = await _methodChannel.invokeMethod('electrocardiogramQuery', arguments);
     final List<dynamic> list = jsonDecode(result);
     final electrocardiograms = <Electrocardiogram>[];
     for (final Map<String, dynamic> map in list) {
@@ -447,8 +416,7 @@ class HealthKitReporter {
   /// See https://cocoapods.org/pods/HealthKitReporter
   /// file [Extensions+HKQuantityType.swift]
   ///
-  static Future<List<Sample>> sampleQuery(
-      String identifier, Predicate predicate) async {
+  static Future<List<Sample>> sampleQuery(String identifier, Predicate predicate) async {
     final arguments = <String, dynamic>{
       'identifier': identifier,
     };
@@ -471,15 +439,13 @@ class HealthKitReporter {
   ///
   /// Warning: The [unit] should be valid. See [preferredUnits].
   ///
-  static Future<Statistics> statisticsQuery(
-      QuantityType type, String unit, Predicate predicate) async {
+  static Future<Statistics> statisticsQuery(QuantityType type, String unit, Predicate predicate) async {
     final arguments = <String, dynamic>{
       'identifier': type.identifier,
       'unit': unit,
     };
     arguments.addAll(predicate.map);
-    final result =
-        await _methodChannel.invokeMethod('statisticsQuery', arguments);
+    final result = await _methodChannel.invokeMethod('statisticsQuery', arguments);
     final Map<String, dynamic> map = jsonDecode(result);
     final statistics = Statistics.fromJson(map);
     return statistics;
@@ -488,12 +454,10 @@ class HealthKitReporter {
   /// Returns [HeartbeatSerie] samples for the provided
   /// time interval predicate [predicate].
   ///
-  static Future<List<ActivitySummary>> queryActivitySummary(
-      Predicate predicate) async {
+  static Future<List<ActivitySummary>> queryActivitySummary(Predicate predicate) async {
     final arguments = <String, dynamic>{};
     arguments.addAll(predicate.map);
-    final result =
-        await _methodChannel.invokeMethod('queryActivitySummary', arguments);
+    final result = await _methodChannel.invokeMethod('queryActivitySummary', arguments);
     final List<dynamic> list = jsonDecode(result);
     final activitySummaries = <ActivitySummary>[];
     for (final Map<String, dynamic> map in list) {
@@ -515,14 +479,12 @@ class HealthKitReporter {
   /// Please see more here:
   /// https://developer.apple.com/documentation/healthkit/hkhealthstore/1614175-enablebackgrounddelivery
   ///
-  static Future<bool> enableBackgroundDelivery(
-      String identifier, UpdateFrequency frequency) async {
+  static Future<bool> enableBackgroundDelivery(String identifier, UpdateFrequency frequency) async {
     final arguments = {
       'identifier': identifier,
       'frequency': frequency.value,
     };
-    return await _methodChannel.invokeMethod(
-        'enableBackgroundDelivery', arguments);
+    return await _methodChannel.invokeMethod('enableBackgroundDelivery', arguments);
   }
 
   /// Disables all previous background notifications.
@@ -536,15 +498,13 @@ class HealthKitReporter {
     final arguments = {
       'identifier': identifier,
     };
-    return await _methodChannel.invokeMethod(
-        'disableBackgroundDelivery', arguments);
+    return await _methodChannel.invokeMethod('disableBackgroundDelivery', arguments);
   }
 
   /// Returns [Source] samples for the provided [identifier] and the
   /// time interval predicate [predicate].
   ///
-  static Future<List<Source>> sourceQuery(
-      String identifier, Predicate predicate) async {
+  static Future<List<Source>> sourceQuery(String identifier, Predicate predicate) async {
     final arguments = <String, dynamic>{
       'identifier': identifier,
     };
@@ -572,16 +532,14 @@ class HealthKitReporter {
   /// message: "Authorization to read the following types is disallowed:
   /// HKCorrelationTypeIdentifierBloodPressure".
   ///
-  static Future<List<Correlation>> correlationQuery(
-      String identifier, Predicate predicate,
+  static Future<List<Correlation>> correlationQuery(String identifier, Predicate predicate,
       {Map<String, Predicate>? typePredicates}) async {
     final arguments = {
       'identifier': identifier,
       'typePredicates': typePredicates,
     };
     arguments.addAll(predicate.map);
-    final result =
-        await _methodChannel.invokeMethod('correlationQuery', arguments);
+    final result = await _methodChannel.invokeMethod('correlationQuery', arguments);
     final List<dynamic> list = jsonDecode(result);
     final correlations = <Correlation>[];
     for (final Map<String, dynamic> map in list) {
@@ -594,10 +552,8 @@ class HealthKitReporter {
   /// Returns status of the App on WatchOS device.
   /// Expects [workoutConfiguration] as the main parameter.
   ///
-  static Future<bool> startWatchApp(
-          WorkoutConfiguration workoutConfiguration) async =>
-      await _methodChannel.invokeMethod(
-          'startWatchApp', workoutConfiguration.map);
+  static Future<bool> startWatchApp(WorkoutConfiguration workoutConfiguration) async =>
+      await _methodChannel.invokeMethod('startWatchApp', workoutConfiguration.map);
 
   /// Checks if the provided type with [identifier] is
   /// allowed for writing in [HealthKit].
@@ -612,8 +568,7 @@ class HealthKitReporter {
   /// Adds [Category] samples to your [workout].
   /// [device] is optional.
   ///
-  static Future<bool> addCategory(List<Category> categories, Workout workout,
-      {Device? device}) async {
+  static Future<bool> addCategory(List<Category> categories, Workout workout, {Device? device}) async {
     final arguments = {
       'categories': categories.map((e) => e.map).toList(),
       'workout': workout.map,
@@ -625,8 +580,7 @@ class HealthKitReporter {
   /// Adds [Quantity] samples to your [workout].
   /// [device] is optional.
   ///
-  static Future<bool> addQuantity(List<Quantity> quantities, Workout workout,
-      {Device? device}) async {
+  static Future<bool> addQuantity(List<Quantity> quantities, Workout workout, {Device? device}) async {
     final arguments = {
       'quantities': quantities.map((e) => e.map).toList(),
       'workout': workout.map,
@@ -644,8 +598,7 @@ class HealthKitReporter {
 
   /// Deletes all objects related to [identifier] with [predicate].
   ///
-  static Future<dynamic> deleteObjects(
-      String identifier, Predicate predicate) async {
+  static Future<dynamic> deleteObjects(String identifier, Predicate predicate) async {
     final arguments = <String, dynamic>{
       'identifier': identifier,
     };

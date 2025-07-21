@@ -143,12 +143,21 @@ class _ObserveScreenState extends State<ObserveScreen> with HealthKitReporterMix
       // 取消之前的订阅
       _currentSubscription?.cancel();
 
-      _currentSubscription =
-          HealthKitReporter.anchoredObjectQuery(identifiers, predicate, onUpdate: (samples, deletedObjects) {
-        _addObservation('锚点查询更新: ${samples.length} 个样本, ${deletedObjects.length} 个删除对象');
-      });
+      // 添加一个开关来控制是否使用本地缓存的anchor
+      final useCachedAnchor = true; // 可以通过UI控制这个值
 
-      _addObservation('开始锚点查询监控 ${identifiers.join(", ")}');
+      _addObservation('开始锚点查询监控 ${identifiers.join(", ")} (使用缓存anchor: $useCachedAnchor)');
+
+      _currentSubscription = HealthKitReporter.anchoredObjectQuery(
+        identifiers,
+        predicate,
+        useCachedAnchor: useCachedAnchor, // 使用新的参数
+        onUpdate: (samples, deletedObjects) {
+          final message = '锚点查询更新: ${samples.length} 个样本, ${deletedObjects.length} 个删除对象';
+          _addObservation(message);
+          debugPrint('Anchor cache update: $message');
+        },
+      );
     } catch (e) {
       _addObservation('锚点查询失败: $e');
     }

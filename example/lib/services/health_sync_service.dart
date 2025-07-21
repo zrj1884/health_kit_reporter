@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:health_kit_reporter/health_kit_reporter.dart';
 import 'package:health_kit_reporter/model/payload/sample.dart';
 import 'package:health_kit_reporter/model/payload/deleted_object.dart';
@@ -15,7 +16,9 @@ import 'database_service.dart';
 class HealthSyncService {
   static final HealthSyncService _instance = HealthSyncService._internal();
   factory HealthSyncService() => _instance;
-  HealthSyncService._internal();
+  HealthSyncService._internal() {
+    _loadFirstAnchoredQueryState();
+  }
 
   // 数据库服务
   final DatabaseService _databaseService = DatabaseService();
@@ -30,6 +33,10 @@ class HealthSyncService {
   // 回调函数
   Function(String)? _onDataChanged;
   Function(List<HealthRecord>, List<String>)? _onSyncComplete;
+
+  // 同步状态管理
+  static const String _firstAnchoredQueryKey = 'first_anchored_query_completed';
+  bool _isFirstAnchoredQuery = true; // 标记是否是首次锚点查询
 
   /// 开始同步指定类型的数据
   Future<bool> startSync(
@@ -48,8 +55,14 @@ class HealthSyncService {
     // 添加新的标识符
     _syncingIdentifiers.addAll(identifiers);
 
-    // 1. 首先进行初始同步
-    result = await _performInitialSync();
+    // 1. 首次同步时进行初始同步，否则跳过
+    if (_isFirstAnchoredQuery) {
+      debugPrint('首次同步，执行初始同步获取历史数据');
+      result = await _performInitialSync();
+    } else {
+      debugPrint('非首次同步，跳过初始同步，直接使用增量同步');
+      result = true; // 跳过初始同步，直接进行后续步骤
+    }
 
     // 2. 设置观察者查询监听变化
     if (result) {
@@ -74,6 +87,7 @@ class HealthSyncService {
     _observerSubscription?.cancel();
     _anchoredSubscription?.cancel();
     _syncingIdentifiers.clear();
+    // 不重置首次查询标记，保持持久化状态
   }
 
   /// 执行初始同步，先同步历史数据
@@ -161,13 +175,26 @@ class HealthSyncService {
         DateTime.now(),
       );
 
+      // 首次查询不使用缓存anchor，后续查询使用缓存anchor
+      final useCachedAnchor = !_isFirstAnchoredQuery;
+
+      debugPrint('设置锚点对象查询: useCachedAnchor = $useCachedAnchor (首次查询: $_isFirstAnchoredQuery)');
+
       _anchoredSubscription = HealthKitReporter.anchoredObjectQuery(
         _syncingIdentifiers,
         predicate,
+        useCachedAnchor: useCachedAnchor, // 根据是否首次查询决定是否使用缓存
         onUpdate: (samples, deletedObjects) async {
+          debugPrint('锚点对象查询更新: 新增${samples.length}, 删除${deletedObjects.length}');
           await _handleAnchoredObjectUpdate(samples, deletedObjects);
         },
       );
+
+      // 标记已完成首次查询并保存状态
+      if (_isFirstAnchoredQuery) {
+        _isFirstAnchoredQuery = false;
+        await _saveFirstAnchoredQueryState();
+      }
 
       return true;
     } catch (e) {
@@ -400,4 +427,37 @@ class HealthSyncService {
 
   /// 获取当前同步的标识符
   List<String> get syncingIdentifiers => _syncingIdentifiers;
+
+  /// 重置首次查询状态，下次同步时将重新获取完整数据
+  Future<void> resetFirstQueryState() async {
+    _isFirstAnchoredQuery = true;
+    await _saveFirstAnchoredQueryState();
+    debugPrint('重置首次查询状态，下次同步将重新获取完整数据');
+  }
+
+  /// 获取当前是否使用缓存anchor的状态
+  bool get isUsingCachedAnchor => !_isFirstAnchoredQuery;
+
+  /// 加载首次锚点查询状态
+  Future<void> _loadFirstAnchoredQueryState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _isFirstAnchoredQuery = !(prefs.getBool(_firstAnchoredQueryKey) ?? false);
+      debugPrint('加载首次锚点查询状态: $_isFirstAnchoredQuery');
+    } catch (e) {
+      debugPrint('加载首次锚点查询状态失败: $e');
+      _isFirstAnchoredQuery = true; // 默认值
+    }
+  }
+
+  /// 保存首次锚点查询状态
+  Future<void> _saveFirstAnchoredQueryState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_firstAnchoredQueryKey, !_isFirstAnchoredQuery);
+      debugPrint('保存首次锚点查询状态: $_isFirstAnchoredQuery');
+    } catch (e) {
+      debugPrint('保存首次锚点查询状态失败: $e');
+    }
+  }
 }
