@@ -25,7 +25,12 @@ class IOSSnackBar {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        margin: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(
+          left: 16,
+          right: 80, // 增大右边距
+          top: 16,
+          bottom: 2,
+        ),
         duration: duration ?? const Duration(seconds: 3),
         action: action,
       ),

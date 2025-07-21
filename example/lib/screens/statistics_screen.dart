@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../components/ios_snackbar.dart';
 import '../services/health_icon_service.dart';
 
 /// 统计信息页面
@@ -26,13 +25,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: _shareStatistics,
-            tooltip: '分享统计信息',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.share),
+        //     onPressed: _shareStatistics,
+        //     tooltip: '分享统计信息',
+        //   ),
+        // ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -346,8 +345,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   /// 分享统计信息
-  void _shareStatistics() {
-    // TODO: 实现分享功能
-    IOSSnackBar.showInfo(context, message: '分享功能开发中...');
-  }
+  // void _shareStatistics() {
+  //   // 实现分享功能
+  //   IOSSnackBar.showInfo(context, message: '分享功能开发中...');
+  // }
 }

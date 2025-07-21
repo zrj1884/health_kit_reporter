@@ -243,7 +243,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         });
       }
     } catch (e) {
-      print('加载统计信息失败: $e');
+      debugPrint('加载统计信息失败: $e');
     }
   }
 

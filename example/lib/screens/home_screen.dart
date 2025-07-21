@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     const initSettings = InitializationSettings(iOS: initializationSettingsIOS);
     _flutterLocalNotificationsPlugin.initialize(initSettings,
         onDidReceiveNotificationResponse: (NotificationResponse response) {
-      print(response.payload);
+      debugPrint(response.payload);
       return;
     });
 
@@ -287,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         });
       }
     } catch (e) {
-      print('加载缓存授权状态失败: $e');
+      debugPrint('加载缓存授权状态失败: $e');
     }
   }
 }
