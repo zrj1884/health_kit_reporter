@@ -1,6 +1,12 @@
+# Versions
+
+## [2.3.2] - 07.22.2024
+
+* Add new types for iOS 17 and 18
+
 ## [2.3.1] - 12.12.2024
 
-* Add missing Workout types 
+* Add missing Workout types
 
 ## [2.3.0] - 13.11.2024
 
@@ -49,7 +55,7 @@
 
 ## [1.5.0] - 15.10.2021
 
-* no stream heartbeatSeriesQuery. HeartbeatSeries now is a valid sample with a set of beat by beat measurements 
+* no stream heartbeatSeriesQuery. HeartbeatSeries now is a valid sample with a set of beat by beat measurements
 
 ## [1.4.1] - 12.09.2021
 
