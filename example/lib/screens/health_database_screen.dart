@@ -22,6 +22,7 @@ class HealthDatabaseScreen extends StatefulWidget {
 
 class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   final HealthSyncService _syncService = HealthSyncService();
+  final ScrollController _scrollController = ScrollController();
 
   List<HealthRecord> _records = [];
   List<HealthRecord> _filteredRecords = [];
@@ -174,6 +175,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _syncService.stopSync();
     super.dispose();
   }
@@ -270,6 +272,14 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         onSyncComplete: (newRecords, deletedIds) async {
           await _loadRecords();
           await _loadStatistics();
+          // 同步完成后滚动到顶部
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
           if (newRecords.isNotEmpty) {
             if (mounted) {
               IOSSnackBar.showSuccess(context, message: '同步完成: ${newRecords.length} 条新记录');
@@ -302,6 +312,14 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   void _applyFilters() {
     _currentPage = 0;
     _loadRecords();
+    // 应用过滤器时也滚动到顶部
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   Future<void> _showFilterDialog() async {
@@ -336,6 +354,15 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
       setState(() {
         _applyFilters();
       });
+
+      // 过滤器应用后滚动到顶部
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
     }
   }
 
@@ -375,10 +402,12 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     if (confirmed == true) {
       try {
         await _syncService.clearAllRecords();
+        // 重置首次查询状态，下次同步时将重新获取完整数据
+        await _syncService.resetFirstQueryState();
         await _loadRecords();
         await _loadStatistics();
         if (mounted) {
-          IOSSnackBar.showSuccess(context, message: '所有记录已清空');
+          IOSSnackBar.showSuccess(context, message: '所有记录已清空，下次同步将重新获取完整数据');
         }
       } catch (e) {
         if (mounted) {
@@ -544,6 +573,14 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                         _currentPage = 0;
                         _loadRecords();
                         _loadStatistics();
+                        // 滚动到列表顶部
+                        if (_scrollController.hasClients) {
+                          _scrollController.animateTo(
+                            0,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
                       },
                       tooltip: '刷新',
                     ),
@@ -568,6 +605,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                           return false;
                         },
                         child: ListView.builder(
+                          controller: _scrollController,
                           itemCount: _filteredRecords.length + (_hasMoreData ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == _filteredRecords.length) {

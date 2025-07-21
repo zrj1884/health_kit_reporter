@@ -66,9 +66,9 @@ class HealthSyncService {
     }
 
     // 2. 设置观察者查询监听变化
-    if (result) {
-      result = await _setupObserverQuery();
-    }
+    // if (result) {
+    //   result = await _setupObserverQuery();
+    // }
 
     // 3. 设置锚点对象查询进行增量同步
     if (result) {
@@ -186,9 +186,12 @@ class HealthSyncService {
         predicate,
         useCachedAnchor: useCachedAnchor, // 根据是否首次查询决定是否使用缓存
         onUpdate: (samples, deletedObjects, identifier) async {
-          debugPrint(
-              '锚点对象查询更新: 新增${samples.length}, 删除${deletedObjects.length}, 标识符: ${HealthIconService.getDisplayNameForIdentifier(identifier)}');
-          await _handleAnchoredObjectUpdate(samples, deletedObjects);
+          if (samples.isNotEmpty || deletedObjects.isNotEmpty) {
+            debugPrint(
+                '锚点对象查询更新: 新增${samples.length}, 删除${deletedObjects.length}, 标识符: ${HealthIconService.getDisplayNameForIdentifier(identifier)}');
+
+            await _handleAnchoredObjectUpdate(samples, deletedObjects);
+          }
         },
       );
 

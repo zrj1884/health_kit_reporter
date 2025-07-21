@@ -88,6 +88,7 @@ let useCachedAnchor = arguments["useCachedAnchor"] as? Bool ?? false
 - **应用重启**: 状态在应用重启后保持，不会重置
 - **清空缓存**: 只有应用清空缓存或重装才会重置状态
 - **手动重置**: 提供 `resetFirstQueryState()` 方法手动重置状态
+- **清空记录**: 清空所有记录时自动重置状态，确保下次同步获取完整数据
 
 ## 实现细节
 
@@ -247,6 +248,13 @@ class HealthSyncService {
     await _saveFirstAnchoredQueryState();
   }
 
+  // 清空所有记录时自动重置状态
+  Future<void> clearAllRecords() async {
+    await _databaseService.clearAllRecords();
+    // 清空记录后重置首次查询状态，确保下次同步获取完整数据
+    await resetFirstQueryState();
+  }
+
   // 加载首次锚点查询状态
   Future<void> _loadFirstAnchoredQueryState() async {
     final prefs = await SharedPreferences.getInstance();
@@ -345,6 +353,7 @@ class _SyncScreenState extends State<SyncScreen> {
 - **可控制性**: 通过开关控制是否使用缓存
 - **智能策略**: 首次查询获取完整数据，后续查询只获取增量数据
 - **状态管理**: 提供状态查询和重置功能
+- **自动重置**: 清空记录时自动重置状态，确保数据完整性
 - **调试友好**: 详细的日志输出，便于监控同步状态
 - **性能透明**: 可以清楚看到当前使用的同步策略
 
