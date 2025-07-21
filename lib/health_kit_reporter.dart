@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
-import 'model/SampleQueryOptions.dart';
+import 'model/sample_query_options.dart';
 import 'model/payload/activity_summary.dart';
 import 'model/payload/category.dart';
 import 'model/payload/characteristic/characteristic.dart';
