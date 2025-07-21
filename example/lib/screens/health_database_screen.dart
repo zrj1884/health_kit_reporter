@@ -449,45 +449,11 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F7),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          '健康数据详情',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-            color: Colors.black,
-          ),
-        ),
-        actions: [
-          _buildIOSStyleIconButton(
-            icon: Icons.analytics,
-            onPressed: _showStatisticsDialog,
-            tooltip: '统计信息',
-          ),
-          _buildIOSStyleIconButton(
-            icon: Icons.filter_list,
-            onPressed: _showFilterDialog,
-            tooltip: '过滤',
-          ),
-          _buildIOSStyleIconButton(
-            icon: Icons.refresh,
-            onPressed: () {
-              _currentPage = 0;
-              _loadRecords();
-              _loadStatistics();
-            },
-            tooltip: '刷新',
-          ),
-          _buildIOSStylePopupMenu(),
-        ],
-      ),
       body: Column(
         children: [
-          // 状态栏
+          // 紧凑的顶部状态栏
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border(
@@ -499,76 +465,90 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
             ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _isSyncing ? const Color(0xFF34C759).withValues(alpha: 0.1) : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _isSyncing ? const Color(0xFF34C759) : Colors.grey.shade300,
-                      width: 1,
-                    ),
-                  ),
+                // 左侧：同步状态和记录数量
+                Expanded(
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        _isSyncing ? Icons.sync : Icons.sync_disabled,
-                        size: 16,
-                        color: _isSyncing ? const Color(0xFF34C759) : Colors.grey.shade600,
+                      // 同步状态
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: _isSyncing ? const Color(0xFF34C759).withValues(alpha: 0.1) : Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: _isSyncing ? const Color(0xFF34C759) : Colors.grey.shade300,
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _isSyncing ? Icons.sync : Icons.sync_disabled,
+                              size: 12,
+                              color: _isSyncing ? const Color(0xFF34C759) : Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _isSyncing ? '同步中' : '已停止',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                color: _isSyncing ? const Color(0xFF34C759) : Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        _isSyncing ? '同步中...' : '同步已停止',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: _isSyncing ? const Color(0xFF34C759) : Colors.grey.shade600,
+                      const SizedBox(width: 8),
+                      // 记录数量（合并显示）
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF007AFF).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: const Color(0xFF007AFF).withValues(alpha: 0.3),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Text(
+                          '${_filteredRecords.length}/${_getFilteredTotalCount()}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF007AFF),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF007AFF).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFF007AFF).withValues(alpha: 0.3),
-                      width: 1,
+                // 右侧：快捷按钮
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildCompactIconButton(
+                      icon: Icons.analytics,
+                      onPressed: _showStatisticsDialog,
+                      tooltip: '统计信息',
                     ),
-                  ),
-                  child: Text(
-                    '${_filteredRecords.length} 条记录',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF007AFF),
+                    _buildCompactIconButton(
+                      icon: Icons.filter_list,
+                      onPressed: _showFilterDialog,
+                      tooltip: '过滤',
                     ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // 显示当前过滤条件下的总记录数
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.grey.shade300,
-                      width: 1,
+                    _buildCompactIconButton(
+                      icon: Icons.refresh,
+                      onPressed: () {
+                        _currentPage = 0;
+                        _loadRecords();
+                        _loadStatistics();
+                      },
+                      tooltip: '刷新',
                     ),
-                  ),
-                  child: Text(
-                    '总: ${_getFilteredTotalCount()}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
+                    _buildCompactPopupMenu(),
+                  ],
                 ),
               ],
             ),
@@ -593,7 +573,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                             if (index == _filteredRecords.length) {
                               return const Center(
                                 child: Padding(
-                                  padding: EdgeInsets.all(16),
+                                  padding: EdgeInsets.all(12),
                                   child: CircularProgressIndicator(),
                                 ),
                               );
@@ -602,40 +582,40 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                             final record = _filteredRecords[index];
                             return Container(
                               margin: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 6,
+                                horizontal: 12,
+                                vertical: 4,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: Colors.grey.shade200,
-                                  width: 1,
+                                  width: 0.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
+                                    color: Colors.black.withValues(alpha: 0.03),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 1),
                                   ),
                                 ],
                               ),
                               child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                                 leading: Container(
-                                  width: 48,
-                                  height: 48,
+                                  width: 40,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                     color: record.isValid
                                         ? HealthIconService.getBackgroundColorForIdentifier(record.identifier)
                                         : Colors.grey.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
                                       color: record.isValid
                                           ? HealthIconService.getColorForIdentifier(record.identifier)
                                               .withValues(alpha: 0.3)
                                           : Colors.grey.withValues(alpha: 0.3),
-                                      width: 1,
+                                      width: 0.5,
                                     ),
                                   ),
                                   child: Icon(
@@ -643,71 +623,74 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                                     color: record.isValid
                                         ? HealthIconService.getColorForIdentifier(record.identifier)
                                         : Colors.grey,
-                                    size: 24,
+                                    size: 20,
                                   ),
                                 ),
                                 title: Text(
                                   HealthIconService.getDisplayNameForIdentifier(record.identifier),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 16,
+                                    fontSize: 14,
                                     color: Colors.black,
                                   ),
                                 ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 2),
                                     Row(
                                       children: [
                                         Icon(
                                           Icons.info_outline,
-                                          size: 14,
+                                          size: 12,
                                           color: Colors.grey.shade600,
                                         ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          _formatValue(record.value, record.unit),
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade700,
-                                            fontWeight: FontWeight.w500,
+                                        const SizedBox(width: 3),
+                                        Expanded(
+                                          child: Text(
+                                            _formatValue(record.value, record.unit),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey.shade700,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 2),
+                                    const SizedBox(height: 1),
                                     Row(
                                       children: [
                                         Icon(
                                           Icons.access_time,
-                                          size: 14,
+                                          size: 12,
                                           color: Colors.grey.shade600,
                                         ),
-                                        const SizedBox(width: 4),
+                                        const SizedBox(width: 3),
                                         Text(
                                           record.startDate.toString().substring(0, 19),
                                           style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 10,
                                             color: Colors.grey.shade600,
                                           ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Row(
-                                      children: [
+                                        const SizedBox(width: 8),
                                         Icon(
                                           Icons.source,
-                                          size: 14,
+                                          size: 12,
                                           color: Colors.grey.shade600,
                                         ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          record.sourceName,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey.shade600,
+                                        const SizedBox(width: 3),
+                                        Expanded(
+                                          child: Text(
+                                            record.sourceName,
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ],
@@ -715,14 +698,15 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                                   ],
                                 ),
                                 trailing: Container(
-                                  margin: const EdgeInsets.only(left: 8),
+                                  margin: const EdgeInsets.only(left: 4),
                                   child: PopupMenuButton<String>(
                                     icon: Icon(
                                       Icons.more_vert,
                                       color: Colors.grey.shade600,
+                                      size: 18,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
                                     itemBuilder: (context) => [
                                       PopupMenuItem<String>(
@@ -732,14 +716,15 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                                             Icon(
                                               Icons.delete_outline,
                                               color: const Color(0xFFFF3B30),
-                                              size: 20,
+                                              size: 18,
                                             ),
-                                            const SizedBox(width: 12),
+                                            const SizedBox(width: 10),
                                             const Text(
                                               '删除',
                                               style: TextStyle(
                                                 color: Color(0xFFFF3B30),
                                                 fontWeight: FontWeight.w500,
+                                                fontSize: 14,
                                               ),
                                             ),
                                           ],
@@ -766,26 +751,27 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         tooltip: '开始同步',
         child: const Icon(Icons.sync),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 
-  Widget _buildIOSStyleIconButton({
+  Widget _buildCompactIconButton({
     required IconData icon,
     required VoidCallback onPressed,
     required String tooltip,
   }) {
     return Container(
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsets.only(left: 4),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
           child: Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             child: Icon(
               icon,
-              size: 22,
+              size: 18,
               color: const Color(0xFF007AFF),
             ),
           ),
@@ -794,16 +780,17 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     );
   }
 
-  Widget _buildIOSStylePopupMenu() {
+  Widget _buildCompactPopupMenu() {
     return Container(
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsets.only(left: 4),
       child: PopupMenuButton<String>(
         icon: const Icon(
           Icons.more_vert,
           color: Color(0xFF007AFF),
+          size: 18,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
         ),
         itemBuilder: (context) => [
           PopupMenuItem<String>(
@@ -813,14 +800,15 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                 Icon(
                   Icons.delete_forever,
                   color: const Color(0xFFFF3B30),
-                  size: 20,
+                  size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 const Text(
                   '清空所有记录',
                   style: TextStyle(
                     color: Color(0xFFFF3B30),
                     fontWeight: FontWeight.w500,
+                    fontSize: 14,
                   ),
                 ),
               ],
