@@ -284,6 +284,16 @@ class HealthIconService {
       case 'HKQuantityTypeIdentifierInsulinDelivery':
         return Icons.medical_services;
 
+      // 步行相关
+      case 'HKQuantityTypeIdentifierWalkingAsymmetryPercentage':
+        return Icons.trending_up;
+      case 'HKQuantityTypeIdentifierWalkingDoubleSupportPercentage':
+        return Icons.directions_walk;
+      case 'HKQuantityTypeIdentifierWalkingSpeed':
+        return Icons.speed;
+      case 'HKQuantityTypeIdentifierWalkingStepLength':
+        return Icons.straighten;
+
       // 默认图标
       default:
         return Icons.health_and_safety;
@@ -455,6 +465,13 @@ class HealthIconService {
       case 'HKQuantityTypeIdentifierInsulinDelivery':
         return Colors.brown;
 
+      // 步行相关 - 橙色系
+      case 'HKQuantityTypeIdentifierWalkingAsymmetryPercentage':
+      case 'HKQuantityTypeIdentifierWalkingDoubleSupportPercentage':
+      case 'HKQuantityTypeIdentifierWalkingSpeed':
+      case 'HKQuantityTypeIdentifierWalkingStepLength':
+        return Colors.orange;
+
       // 默认颜色
       default:
         return Colors.brown;
@@ -550,21 +567,21 @@ class HealthIconService {
       case 'HKQuantityTypeIdentifierActiveEnergyBurned':
         return '活动消耗热量';
       case 'HKQuantityTypeIdentifierAppleExerciseTime':
-        return 'Apple运动时间';
+        return '运动时间';
       case 'HKQuantityTypeIdentifierAppleMoveTime':
-        return 'Apple活动时间';
+        return '活动时间';
       case 'HKQuantityTypeIdentifierAppleStandTime':
-        return 'Apple站立时间';
+        return '站立时间';
       case 'HKQuantityTypeIdentifierAppleWalkingSteadiness':
-        return 'Apple步行稳定性';
+        return '步行稳定性';
       case 'HKQuantityTypeIdentifierBasalEnergyBurned':
         return '基础代谢热量';
       case 'HKQuantityTypeIdentifierCrossCountrySkiingSpeed':
         return '越野滑雪速度';
       case 'HKQuantityTypeIdentifierCyclingCadence':
-        return '骑行踏频';
+        return '骑车踏频';
       case 'HKQuantityTypeIdentifierCyclingFunctionalThresholdPower':
-        return '骑行功能阈值功率';
+        return '骑行功能性阈值功率';
       case 'HKQuantityTypeIdentifierCyclingPower':
         return '骑行功率';
       case 'HKQuantityTypeIdentifierCyclingSpeed':
@@ -612,7 +629,7 @@ class HealthIconService {
       case 'HKQuantityTypeIdentifierRunningVerticalOscillation':
         return '跑步垂直振荡';
       case 'HKQuantityTypeIdentifierSixMinuteWalkTestDistance':
-        return '六分钟步行测试距离';
+        return '六分钟步行';
       case 'HKQuantityTypeIdentifierStairAscentSpeed':
         return '上楼速度';
       case 'HKQuantityTypeIdentifierStairDescentSpeed':
@@ -788,23 +805,23 @@ class HealthIconService {
       case 'HKQuantityTypeIdentifierBloodPressureSystolic':
         return '收缩压';
       case 'HKQuantityTypeIdentifierForcedExpiratoryVolume1':
-        return '一秒用力呼气量';
+        return '第一秒用力呼气量';
       case 'HKQuantityTypeIdentifierForcedVitalCapacity':
         return '用力肺活量';
       case 'HKQuantityTypeIdentifierOxygenSaturation':
-        return '血氧饱和度';
+        return '血氧';
       case 'HKQuantityTypeIdentifierPeakExpiratoryFlowRate':
-        return '峰值呼气流速';
+        return '呼气流量峰值';
       case 'HKQuantityTypeIdentifierRespiratoryRate':
         return '呼吸频率';
 
       // 听力
       case 'HKQuantityTypeIdentifierEnvironmentalAudioExposure':
-        return '环境音频暴露';
+        return '环境音量';
       case 'HKQuantityTypeIdentifierEnvironmentalSoundReduction':
-        return '环境声音减少';
+        return '降低环境音量';
       case 'HKQuantityTypeIdentifierHeadphoneAudioExposure':
-        return '耳机音频暴露';
+        return '耳机通知';
 
       // 生殖健康
       case 'HKCategoryTypeIdentifierMenstrualFlow':
@@ -825,6 +842,16 @@ class HealthIconService {
         return '吸入器使用';
       case 'HKQuantityTypeIdentifierInsulinDelivery':
         return '胰岛素输送';
+
+      // 步行相关
+      case 'HKQuantityTypeIdentifierWalkingAsymmetryPercentage':
+        return '步行不对称百分比';
+      case 'HKQuantityTypeIdentifierWalkingDoubleSupportPercentage':
+        return '步行双支撑百分比';
+      case 'HKQuantityTypeIdentifierWalkingSpeed':
+        return '步行速度';
+      case 'HKQuantityTypeIdentifierWalkingStepLength':
+        return '步行步长';
 
       default:
         return identifier;

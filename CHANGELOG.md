@@ -1,6 +1,10 @@
 # Versions
 
-## [2.3.2] - 07.22.2024
+## [2.3.3] - 07.22.2025
+
+* Update example for new types. Upgrade iOS SDK HealthKitReporter[3.1.3]
+
+## [2.3.2] - 07.22.2025
 
 * Add new types for iOS 17 and 18
 

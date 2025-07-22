@@ -103,6 +103,8 @@ class HealthSyncService {
       final records = <HealthRecord>[];
 
       for (final identifier in _syncingIdentifiers) {
+        debugPrint(
+            '初始同步: ${HealthIconService.getDisplayNameForIdentifier(identifier)}, predicate: ${predicate.startDate} - ${predicate.endDate}');
         final samples = await HealthKitReporter.sampleQuery(identifier, predicate);
         for (final sample in samples) {
           records.add(HealthRecord.fromSample(sample));
@@ -155,6 +157,8 @@ class HealthSyncService {
       final records = <HealthRecord>[];
 
       for (final identifier in identifiers) {
+        debugPrint(
+            '初始同步: ${HealthIconService.getDisplayNameForIdentifier(identifier)}, predicate: ${predicate.startDate} - ${predicate.endDate}');
         final samples = await HealthKitReporter.sampleQuery(identifier, predicate);
         for (final sample in samples) {
           records.add(HealthRecord.fromSample(sample));
