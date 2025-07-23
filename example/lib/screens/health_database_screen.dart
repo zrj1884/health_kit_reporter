@@ -163,6 +163,10 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     'HKQuantityTypeIdentifierElectrodermalActivity',
     'HKQuantityTypeIdentifierInhalerUsage',
     'HKQuantityTypeIdentifierInsulinDelivery',
+
+    // 睡眠
+    'HKCategoryTypeIdentifierSleepAnalysis',
+    'HKCategoryTypeIdentifierSleepChanges',
   ];
 
   @override

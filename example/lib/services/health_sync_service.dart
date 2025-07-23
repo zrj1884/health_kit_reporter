@@ -158,7 +158,7 @@ class HealthSyncService {
 
       for (final identifier in identifiers) {
         debugPrint(
-            '初始同步: ${HealthIconService.getDisplayNameForIdentifier(identifier)}, predicate: ${predicate.startDate} - ${predicate.endDate}');
+            '增量同步: ${HealthIconService.getDisplayNameForIdentifier(identifier)}, predicate: ${predicate.startDate} - ${predicate.endDate}');
         final samples = await HealthKitReporter.sampleQuery(identifier, predicate);
         for (final sample in samples) {
           records.add(HealthRecord.fromSample(sample));

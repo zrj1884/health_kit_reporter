@@ -693,6 +693,10 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
         'HKQuantityTypeIdentifierNumberOfTimesFallen',
         'HKQuantityTypeIdentifierWaistCircumference',
       ],
+      '睡眠': [
+        'HKCategoryTypeIdentifierSleepAnalysis',
+        'HKCategoryTypeIdentifierSleepChanges',
+      ],
       '营养': [
         'HKQuantityTypeIdentifierDietaryBiotin',
         'HKQuantityTypeIdentifierDietaryCaffeine',
