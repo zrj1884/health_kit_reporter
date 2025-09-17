@@ -95,16 +95,14 @@ class HealthSyncService {
   Future<bool> _performInitialSync() async {
     try {
       // 获取近30天所有数据
-      final predicate = Predicate(
-        DateTime.now().subtract(const Duration(days: 30)),
-        DateTime.now(),
-      );
+      final predicate = Predicate(DateTime.now().subtract(const Duration(days: 30)), DateTime.now());
 
       final records = <HealthRecord>[];
 
       for (final identifier in _syncingIdentifiers) {
         debugPrint(
-            '初始同步: ${HealthIconService.getDisplayNameForIdentifier(identifier)}, predicate: ${predicate.startDate} - ${predicate.endDate}');
+          '初始同步: ${HealthIconService.getDisplayNameForIdentifier(identifier)}, predicate: ${predicate.startDate} - ${predicate.endDate}',
+        );
         final samples = await HealthKitReporter.sampleQuery(identifier, predicate);
         for (final sample in samples) {
           records.add(HealthRecord.fromSample(sample));
@@ -149,16 +147,14 @@ class HealthSyncService {
   /// 执行增量同步
   Future<void> _performIncrementalSync(List<String> identifiers) async {
     try {
-      final predicate = Predicate(
-        DateTime.now().subtract(const Duration(hours: 1)),
-        DateTime.now(),
-      );
+      final predicate = Predicate(DateTime.now().subtract(const Duration(hours: 1)), DateTime.now());
 
       final records = <HealthRecord>[];
 
       for (final identifier in identifiers) {
         debugPrint(
-            '增量同步: ${HealthIconService.getDisplayNameForIdentifier(identifier)}, predicate: ${predicate.startDate} - ${predicate.endDate}');
+          '增量同步: ${HealthIconService.getDisplayNameForIdentifier(identifier)}, predicate: ${predicate.startDate} - ${predicate.endDate}',
+        );
         final samples = await HealthKitReporter.sampleQuery(identifier, predicate);
         for (final sample in samples) {
           records.add(HealthRecord.fromSample(sample));
@@ -177,10 +173,7 @@ class HealthSyncService {
   /// 设置锚点对象查询
   Future<bool> _setupAnchoredObjectQuery() async {
     try {
-      final predicate = Predicate(
-        DateTime.now().subtract(const Duration(days: 7)),
-        DateTime.now(),
-      );
+      final predicate = Predicate(DateTime.now().subtract(const Duration(days: 7)), DateTime.now());
 
       // 首次查询不使用缓存anchor，后续查询使用缓存anchor
       final useCachedAnchor = !_isFirstAnchoredQuery;
@@ -194,7 +187,8 @@ class HealthSyncService {
         onUpdate: (samples, deletedObjects, identifier) async {
           if (samples.isNotEmpty || deletedObjects.isNotEmpty) {
             debugPrint(
-                '锚点对象查询更新: 新增${samples.length}, 删除${deletedObjects.length}, 标识符: ${HealthIconService.getDisplayNameForIdentifier(identifier)}');
+              '锚点对象查询更新: 新增${samples.length}, 删除${deletedObjects.length}, 标识符: ${HealthIconService.getDisplayNameForIdentifier(identifier)}',
+            );
 
             await _handleAnchoredObjectUpdate(samples, deletedObjects);
           }
@@ -215,10 +209,7 @@ class HealthSyncService {
   }
 
   /// 处理锚点对象查询更新
-  Future<void> _handleAnchoredObjectUpdate(
-    List<Sample> samples,
-    List<DeletedObject> deletedObjects,
-  ) async {
+  Future<void> _handleAnchoredObjectUpdate(List<Sample> samples, List<DeletedObject> deletedObjects) async {
     try {
       // 处理新增/更新的记录
       final newRecords = <HealthRecord>[];
@@ -243,10 +234,7 @@ class HealthSyncService {
     bool result = true;
     for (final identifier in _syncingIdentifiers) {
       try {
-        result = await HealthKitReporter.enableBackgroundDelivery(
-          identifier,
-          UpdateFrequency.immediate,
-        );
+        result = await HealthKitReporter.enableBackgroundDelivery(identifier, UpdateFrequency.immediate);
       } catch (e) {
         debugPrint('启用后台交付失败 $identifier: $e');
         result = false;
@@ -261,10 +249,7 @@ class HealthSyncService {
   }
 
   /// 更新数据库
-  Future<void> _updateDatabase(
-    List<HealthRecord> newRecords,
-    List<String> deletedIds,
-  ) async {
+  Future<void> _updateDatabase(List<HealthRecord> newRecords, List<String> deletedIds) async {
     try {
       // 删除记录
       if (deletedIds.isNotEmpty) {
@@ -368,49 +353,23 @@ class HealthSyncService {
   }
 
   /// 获取今天的记录
-  Future<List<HealthRecord>> getTodayRecords({
-    String? identifier,
-    bool? isValid,
-  }) async {
-    return await _databaseService.getTodayRecords(
-      identifier: identifier,
-      isValid: isValid,
-    );
+  Future<List<HealthRecord>> getTodayRecords({String? identifier, bool? isValid}) async {
+    return await _databaseService.getTodayRecords(identifier: identifier, isValid: isValid);
   }
 
   /// 获取本周的记录
-  Future<List<HealthRecord>> getThisWeekRecords({
-    String? identifier,
-    bool? isValid,
-  }) async {
-    return await _databaseService.getThisWeekRecords(
-      identifier: identifier,
-      isValid: isValid,
-    );
+  Future<List<HealthRecord>> getThisWeekRecords({String? identifier, bool? isValid}) async {
+    return await _databaseService.getThisWeekRecords(identifier: identifier, isValid: isValid);
   }
 
   /// 获取本月的记录
-  Future<List<HealthRecord>> getThisMonthRecords({
-    String? identifier,
-    bool? isValid,
-  }) async {
-    return await _databaseService.getThisMonthRecords(
-      identifier: identifier,
-      isValid: isValid,
-    );
+  Future<List<HealthRecord>> getThisMonthRecords({String? identifier, bool? isValid}) async {
+    return await _databaseService.getThisMonthRecords(identifier: identifier, isValid: isValid);
   }
 
   /// 获取最近N天的记录
-  Future<List<HealthRecord>> getRecentDaysRecords(
-    int days, {
-    String? identifier,
-    bool? isValid,
-  }) async {
-    return await _databaseService.getRecentDaysRecords(
-      days,
-      identifier: identifier,
-      isValid: isValid,
-    );
+  Future<List<HealthRecord>> getRecentDaysRecords(int days, {String? identifier, bool? isValid}) async {
+    return await _databaseService.getRecentDaysRecords(days, identifier: identifier, isValid: isValid);
   }
 
   /// 获取时间范围内的记录数量

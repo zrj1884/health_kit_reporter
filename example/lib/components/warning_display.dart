@@ -4,11 +4,7 @@ class WarningDisplay extends StatelessWidget {
   final String title;
   final String message;
 
-  const WarningDisplay({
-    super.key,
-    required this.title,
-    required this.message,
-  });
+  const WarningDisplay({super.key, required this.title, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -30,19 +26,12 @@ class WarningDisplay extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            message,
-            style: const TextStyle(fontSize: 12, color: Colors.red),
-          ),
+          Text(message, style: const TextStyle(fontSize: 12, color: Colors.red)),
         ],
       ),
     );

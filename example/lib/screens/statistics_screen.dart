@@ -6,10 +6,7 @@ import '../services/health_icon_service.dart';
 class StatisticsScreen extends StatefulWidget {
   final Map<String, dynamic> statistics;
 
-  const StatisticsScreen({
-    super.key,
-    required this.statistics,
-  });
+  const StatisticsScreen({super.key, required this.statistics});
 
   @override
   State<StatisticsScreen> createState() => _StatisticsScreenState();
@@ -21,10 +18,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('统计信息'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
         // actions: [
         //   IconButton(
         //     icon: const Icon(Icons.share),
@@ -43,13 +37,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             const SizedBox(height: 24),
 
             // 按分类统计
-            const Text(
-              '按分类统计',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            const Text('按分类统计', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ..._buildCategoryStatistics(),
           ],
@@ -69,31 +57,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.analytics,
-                  color: Theme.of(context).primaryColor,
-                  size: 24,
-                ),
+                Icon(Icons.analytics, color: Theme.of(context).primaryColor, size: 24),
                 const SizedBox(width: 12),
-                const Text(
-                  '总体统计',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                const Text('总体统计', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: _buildStatItem(
-                    '总记录数',
-                    '${widget.statistics['totalRecords']}',
-                    Icons.list_alt,
-                    Colors.blue,
-                  ),
+                  child: _buildStatItem('总记录数', '${widget.statistics['totalRecords']}', Icons.list_alt, Colors.blue),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -110,12 +83,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildStatItem(
-                    '无效记录',
-                    '${widget.statistics['invalidRecords']}',
-                    Icons.error,
-                    Colors.red,
-                  ),
+                  child: _buildStatItem('无效记录', '${widget.statistics['invalidRecords']}', Icons.error, Colors.red),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -149,20 +117,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           const SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
         ],
       ),
     );
@@ -193,29 +151,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           child: ExpansionTile(
             leading: CircleAvatar(
               backgroundColor: _getCategoryColor(category).withValues(alpha: 0.1),
-              child: Icon(
-                _getCategoryIcon(category),
-                color: _getCategoryColor(category),
-                size: 20,
-              ),
+              child: Icon(_getCategoryIcon(category), color: _getCategoryColor(category), size: 20),
             ),
-            title: Text(
-              category,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            subtitle: Text(
-              '$totalCount 条记录',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 12,
-              ),
-            ),
-            children: [
-              ...entries.map((entry) => _buildTypeItem(entry)),
-            ],
+            title: Text(category, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            subtitle: Text('$totalCount 条记录', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            children: [...entries.map((entry) => _buildTypeItem(entry))],
           ),
         ),
       );
@@ -250,17 +190,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               children: [
                 Text(
                   HealthIconService.getDisplayNameForIdentifier(entry.key),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
-                Text(
-                  '${entry.value} 条记录',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
-                ),
+                Text('${entry.value} 条记录', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
               ],
             ),
           ),

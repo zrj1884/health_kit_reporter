@@ -20,10 +20,7 @@ class AuthButton extends StatelessWidget {
       message: tooltip,
       child: IconButton(
         onPressed: onPressed,
-        icon: Icon(
-          icon,
-          color: isAuthorized ? Colors.green : Colors.orange,
-        ),
+        icon: Icon(icon, color: isAuthorized ? Colors.green : Colors.orange),
       ),
     );
   }

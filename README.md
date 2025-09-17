@@ -76,7 +76,7 @@ If you plan to read **Clinical Records** please provide additionally:
 
 ### Common usage
 
-You simply call a <i>HealthKitReporter</i> methods surrounding by try catch blocks.
+You simply call a [HealthKitReporter] methods surrounding by try catch blocks.
 
 Warning: If Apple Health is not supported by the device (i.e. iPad) the error result will occur.
 
@@ -246,7 +246,6 @@ void saveSteps() async {
 
 **Recommendation: As well as for reading, here will better as well to call preferredUnits first, to know what unit is valid for a type.**
 **Please see [HKUnit.init](https://developer.apple.com/documentation/healthkit/hkunit/1615733-init/)**
-
 **Warning: PLease be sure to provide valid values for the appropriate types. For example, HealthKit will not allow to save Quantity value for the QuantityType.stepCount if the value is 0**
 
 ## Observing Data

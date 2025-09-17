@@ -135,9 +135,28 @@ class DatabaseService {
   /// 插入记录
   Future<void> insertRecord(HealthRecord record) async {
     final db = await database;
-    await db.insert(
-      'health_records',
-      {
+    await db.insert('health_records', {
+      'id': record.id,
+      'identifier': record.identifier,
+      'value': record.value,
+      'unit': record.unit,
+      'start_timestamp': record.startDate.millisecondsSinceEpoch,
+      'end_timestamp': record.endDate.millisecondsSinceEpoch,
+      'source_name': record.sourceName,
+      'device_name': record.deviceName,
+      'is_valid': record.isValid ? 1 : 0,
+      'created_timestamp': record.createdAt.millisecondsSinceEpoch,
+      'updated_timestamp': record.updatedAt.millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  /// 批量插入记录
+  Future<void> insertRecords(List<HealthRecord> records) async {
+    final db = await database;
+    final batch = db.batch();
+
+    for (final record in records) {
+      batch.insert('health_records', {
         'id': record.id,
         'identifier': record.identifier,
         'value': record.value,
@@ -149,34 +168,7 @@ class DatabaseService {
         'is_valid': record.isValid ? 1 : 0,
         'created_timestamp': record.createdAt.millisecondsSinceEpoch,
         'updated_timestamp': record.updatedAt.millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  /// 批量插入记录
-  Future<void> insertRecords(List<HealthRecord> records) async {
-    final db = await database;
-    final batch = db.batch();
-
-    for (final record in records) {
-      batch.insert(
-        'health_records',
-        {
-          'id': record.id,
-          'identifier': record.identifier,
-          'value': record.value,
-          'unit': record.unit,
-          'start_timestamp': record.startDate.millisecondsSinceEpoch,
-          'end_timestamp': record.endDate.millisecondsSinceEpoch,
-          'source_name': record.sourceName,
-          'device_name': record.deviceName,
-          'is_valid': record.isValid ? 1 : 0,
-          'created_timestamp': record.createdAt.millisecondsSinceEpoch,
-          'updated_timestamp': record.updatedAt.millisecondsSinceEpoch,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
 
     await batch.commit(noResult: true);
@@ -206,11 +198,7 @@ class DatabaseService {
   /// 删除记录
   Future<void> deleteRecord(String id) async {
     final db = await database;
-    await db.delete(
-      'health_records',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    await db.delete('health_records', where: 'id = ?', whereArgs: [id]);
   }
 
   /// 批量软删除记录（标记为无效）
@@ -221,10 +209,7 @@ class DatabaseService {
     final placeholders = List.filled(ids.length, '?').join(',');
     await db.update(
       'health_records',
-      {
-        'is_valid': 0,
-        'updated_timestamp': DateTime.now().millisecondsSinceEpoch,
-      },
+      {'is_valid': 0, 'updated_timestamp': DateTime.now().millisecondsSinceEpoch},
       where: 'id IN ($placeholders)',
       whereArgs: ids,
     );
@@ -233,10 +218,7 @@ class DatabaseService {
   /// 获取所有记录
   Future<List<HealthRecord>> getAllRecords() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'health_records',
-      orderBy: 'start_timestamp DESC',
-    );
+    final List<Map<String, dynamic>> maps = await db.query('health_records', orderBy: 'start_timestamp DESC');
 
     return List.generate(maps.length, (i) {
       return HealthRecord.fromMap(maps[i]);
@@ -423,10 +405,7 @@ class DatabaseService {
   }
 
   /// 获取今天的记录
-  Future<List<HealthRecord>> getTodayRecords({
-    String? identifier,
-    bool? isValid,
-  }) async {
+  Future<List<HealthRecord>> getTodayRecords({String? identifier, bool? isValid}) async {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
     final endOfDay = startOfDay.add(const Duration(days: 1)).subtract(const Duration(milliseconds: 1));
@@ -435,10 +414,7 @@ class DatabaseService {
   }
 
   /// 获取本周的记录
-  Future<List<HealthRecord>> getThisWeekRecords({
-    String? identifier,
-    bool? isValid,
-  }) async {
+  Future<List<HealthRecord>> getThisWeekRecords({String? identifier, bool? isValid}) async {
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
     final startOfWeekDay = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
@@ -448,10 +424,7 @@ class DatabaseService {
   }
 
   /// 获取本月的记录
-  Future<List<HealthRecord>> getThisMonthRecords({
-    String? identifier,
-    bool? isValid,
-  }) async {
+  Future<List<HealthRecord>> getThisMonthRecords({String? identifier, bool? isValid}) async {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 1).subtract(const Duration(milliseconds: 1));
@@ -460,11 +433,7 @@ class DatabaseService {
   }
 
   /// 获取最近N天的记录
-  Future<List<HealthRecord>> getRecentDaysRecords(
-    int days, {
-    String? identifier,
-    bool? isValid,
-  }) async {
+  Future<List<HealthRecord>> getRecentDaysRecords(int days, {String? identifier, bool? isValid}) async {
     final now = DateTime.now();
     final startTime = now.subtract(Duration(days: days));
 
@@ -478,12 +447,7 @@ class DatabaseService {
     String? identifier,
     bool? isValid,
   }) async {
-    return await getRecordCount(
-      identifier: identifier,
-      startDate: startTime,
-      endDate: endTime,
-      isValid: isValid,
-    );
+    return await getRecordCount(identifier: identifier, startDate: startTime, endDate: endTime, isValid: isValid);
   }
 
   /// 获取最早和最晚的记录时间

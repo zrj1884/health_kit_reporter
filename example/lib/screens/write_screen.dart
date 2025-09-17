@@ -31,19 +31,10 @@ class _WriteScreenState extends State<WriteScreen> with HealthKitReporterMixin {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ResultDisplay(
-          title: '写入结果',
-          result: _lastResult,
-          isLoading: _isLoading,
-          placeholder: '点击下方按钮开始写入健康数据',
-        ),
+        ResultDisplay(title: '写入结果', result: _lastResult, isLoading: _isLoading, placeholder: '点击下方按钮开始写入健康数据'),
         Expanded(
           child: ListView(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              bottom: MediaQuery.paddingOf(context).bottom,
-            ),
+            padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.paddingOf(context).bottom),
             children: [
               ActionCard(
                 icon: Icons.directions_walk,
@@ -104,8 +95,15 @@ class _WriteScreenState extends State<WriteScreen> with HealthKitReporterMixin {
         final now = DateTime.now();
         final minuteAgo = now.add(const Duration(minutes: -1));
         const harmonized = QuantityHarmonized(100, 'count', null);
-        final steps = Quantity('testStepsUUID', QuantityType.stepCount.identifier, minuteAgo.millisecondsSinceEpoch,
-            now.millisecondsSinceEpoch, device, sourceRevision, harmonized);
+        final steps = Quantity(
+          'testStepsUUID',
+          QuantityType.stepCount.identifier,
+          minuteAgo.millisecondsSinceEpoch,
+          now.millisecondsSinceEpoch,
+          device,
+          sourceRevision,
+          harmonized,
+        );
 
         final saved = await HealthKitReporter.save(steps);
         _updateResult(saved ? '✅ 步数数据写入成功\n添加了100步运动数据' : '❌ 步数数据写入失败');
@@ -140,12 +138,7 @@ class _WriteScreenState extends State<WriteScreen> with HealthKitReporterMixin {
         const duration = 60;
         const eventHarmonized = WorkoutEventHarmonized(WorkoutEventType.pause);
         final events = [
-          WorkoutEvent(
-            now.millisecondsSinceEpoch,
-            now.millisecondsSinceEpoch,
-            duration,
-            eventHarmonized,
-          )
+          WorkoutEvent(now.millisecondsSinceEpoch, now.millisecondsSinceEpoch, duration, eventHarmonized),
         ];
         final minuteAgo = now.add(const Duration(seconds: -duration));
         final workout = Workout(
@@ -179,12 +172,7 @@ class _WriteScreenState extends State<WriteScreen> with HealthKitReporterMixin {
       if (canWrite) {
         final now = DateTime.now();
         final minuteAgo = now.add(const Duration(minutes: -1));
-        const harmonized = CategoryHarmonized(
-          0,
-          'HKCategoryValue',
-          'Not Aplicable',
-          {},
-        );
+        const harmonized = CategoryHarmonized(0, 'HKCategoryValue', 'Not Aplicable', {});
         final mindfulMinutes = Category(
           'testMindfulMinutesUUID',
           CategoryType.mindfulSession.identifier,
@@ -213,24 +201,33 @@ class _WriteScreenState extends State<WriteScreen> with HealthKitReporterMixin {
       final now = DateTime.now();
       final minuteAgo = now.add(const Duration(minutes: -1));
       final sys = Quantity(
-          'testSysUUID234',
-          QuantityType.bloodPressureSystolic.identifier,
-          minuteAgo.millisecondsSinceEpoch,
-          now.millisecondsSinceEpoch,
-          device,
-          sourceRevision,
-          const QuantityHarmonized(123, 'mmHg', null));
+        'testSysUUID234',
+        QuantityType.bloodPressureSystolic.identifier,
+        minuteAgo.millisecondsSinceEpoch,
+        now.millisecondsSinceEpoch,
+        device,
+        sourceRevision,
+        const QuantityHarmonized(123, 'mmHg', null),
+      );
       final dia = Quantity(
-          'testDiaUUID456',
-          QuantityType.bloodPressureDiastolic.identifier,
-          minuteAgo.millisecondsSinceEpoch,
-          now.millisecondsSinceEpoch,
-          device,
-          sourceRevision,
-          const QuantityHarmonized(89, 'mmHg', null));
+        'testDiaUUID456',
+        QuantityType.bloodPressureDiastolic.identifier,
+        minuteAgo.millisecondsSinceEpoch,
+        now.millisecondsSinceEpoch,
+        device,
+        sourceRevision,
+        const QuantityHarmonized(89, 'mmHg', null),
+      );
       final correlationJarmonized = CorrelationHarmonized([sys, dia], [], null);
-      final correlation = Correlation('test', CorrelationType.bloodPressure.identifier,
-          minuteAgo.millisecondsSinceEpoch, now.millisecondsSinceEpoch, device, sourceRevision, correlationJarmonized);
+      final correlation = Correlation(
+        'test',
+        CorrelationType.bloodPressure.identifier,
+        minuteAgo.millisecondsSinceEpoch,
+        now.millisecondsSinceEpoch,
+        device,
+        sourceRevision,
+        correlationJarmonized,
+      );
 
       final saved = await HealthKitReporter.save(correlation);
       _updateResult(saved ? '✅ 血压数据写入成功\n添加了血压测量数据' : '❌ 血压数据写入失败');

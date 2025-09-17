@@ -22,23 +22,11 @@ class _DeleteScreenState extends State<DeleteScreen> with HealthKitReporterMixin
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const WarningDisplay(
-          title: '⚠️ 数据删除警告',
-          message: '删除操作将永久移除健康数据，请谨慎操作！',
-        ),
-        ResultDisplay(
-          title: '删除结果',
-          result: _lastResult,
-          isLoading: _isLoading,
-          placeholder: '点击下方按钮删除健康数据',
-        ),
+        const WarningDisplay(title: '⚠️ 数据删除警告', message: '删除操作将永久移除健康数据，请谨慎操作！'),
+        ResultDisplay(title: '删除结果', result: _lastResult, isLoading: _isLoading, placeholder: '点击下方按钮删除健康数据'),
         Expanded(
           child: ListView(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              bottom: MediaQuery.paddingOf(context).bottom,
-            ),
+            padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.paddingOf(context).bottom),
             children: [
               ActionCard(
                 icon: Icons.delete_forever,
@@ -71,11 +59,9 @@ class _DeleteScreenState extends State<DeleteScreen> with HealthKitReporterMixin
     _setLoading(true);
     try {
       final map = await HealthKitReporter.deleteObjects(
-          QuantityType.stepCount.identifier,
-          Predicate(
-            DateTime.now().add(const Duration(days: -1)),
-            DateTime.now(),
-          ));
+        QuantityType.stepCount.identifier,
+        Predicate(DateTime.now().add(const Duration(days: -1)), DateTime.now()),
+      );
       _updateResult('✅ 步数数据删除成功\n删除结果: $map');
     } catch (e) {
       _updateResult('❌ 删除失败: $e');

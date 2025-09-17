@@ -14,17 +14,11 @@ class IOSSnackBar {
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
         ),
         backgroundColor: backgroundColor ?? const Color(0xFF007AFF),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.only(
           left: 16,
           right: 80, // 增大右边距
@@ -38,12 +32,7 @@ class IOSSnackBar {
   }
 
   /// 显示成功消息
-  static void showSuccess(
-    BuildContext context, {
-    required String message,
-    Duration? duration,
-    SnackBarAction? action,
-  }) {
+  static void showSuccess(BuildContext context, {required String message, Duration? duration, SnackBarAction? action}) {
     show(
       context,
       message: message,
@@ -54,12 +43,7 @@ class IOSSnackBar {
   }
 
   /// 显示错误消息
-  static void showError(
-    BuildContext context, {
-    required String message,
-    Duration? duration,
-    SnackBarAction? action,
-  }) {
+  static void showError(BuildContext context, {required String message, Duration? duration, SnackBarAction? action}) {
     show(
       context,
       message: message,
@@ -70,12 +54,7 @@ class IOSSnackBar {
   }
 
   /// 显示警告消息
-  static void showWarning(
-    BuildContext context, {
-    required String message,
-    Duration? duration,
-    SnackBarAction? action,
-  }) {
+  static void showWarning(BuildContext context, {required String message, Duration? duration, SnackBarAction? action}) {
     show(
       context,
       message: message,
@@ -86,12 +65,7 @@ class IOSSnackBar {
   }
 
   /// 显示信息消息
-  static void showInfo(
-    BuildContext context, {
-    required String message,
-    Duration? duration,
-    SnackBarAction? action,
-  }) {
+  static void showInfo(BuildContext context, {required String message, Duration? duration, SnackBarAction? action}) {
     show(
       context,
       message: message,
@@ -115,11 +89,7 @@ class IOSSnackBar {
       message: message,
       backgroundColor: backgroundColor,
       duration: duration,
-      action: SnackBarAction(
-        label: actionLabel,
-        textColor: Colors.white,
-        onPressed: onActionPressed,
-      ),
+      action: SnackBarAction(label: actionLabel, textColor: Colors.white, onPressed: onActionPressed),
     );
   }
 }

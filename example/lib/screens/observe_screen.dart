@@ -12,10 +12,7 @@ import '../components/index.dart';
 import '../services/health_icon_service.dart';
 
 class ObserveScreen extends StatefulWidget {
-  const ObserveScreen({
-    super.key,
-    required this.flutterLocalNotificationsPlugin,
-  });
+  const ObserveScreen({super.key, required this.flutterLocalNotificationsPlugin});
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
@@ -38,17 +35,10 @@ class _ObserveScreenState extends State<ObserveScreen> with HealthKitReporterMix
   Widget build(BuildContext context) {
     return Column(
       children: [
-        MonitorStatus(
-          isObserving: _isObserving,
-          latestUpdate: _observations.isNotEmpty ? _observations.first : null,
-        ),
+        MonitorStatus(isObserving: _isObserving, latestUpdate: _observations.isNotEmpty ? _observations.first : null),
         Expanded(
           child: ListView(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              bottom: MediaQuery.paddingOf(context).bottom,
-            ),
+            padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.paddingOf(context).bottom),
             children: [
               ActionCard(
                 icon: Icons.monitor_heart,
@@ -56,10 +46,7 @@ class _ObserveScreenState extends State<ObserveScreen> with HealthKitReporterMix
                 subtitle: '实时监控步数和心率数据变化',
                 backgroundColor: Colors.purple[100],
                 iconColor: Colors.purple[600],
-                onTap: () => _observerQuery([
-                  QuantityType.stepCount.identifier,
-                  QuantityType.heartRate.identifier,
-                ]),
+                onTap: () => _observerQuery([QuantityType.stepCount.identifier, QuantityType.heartRate.identifier]),
               ),
               ActionCard(
                 icon: Icons.anchor,
@@ -67,10 +54,8 @@ class _ObserveScreenState extends State<ObserveScreen> with HealthKitReporterMix
                 subtitle: '使用锚点查询监控数据变化',
                 backgroundColor: Colors.purple[100],
                 iconColor: Colors.purple[600],
-                onTap: () => _anchoredObjectQuery([
-                  QuantityType.stepCount.identifier,
-                  QuantityType.heartRate.identifier,
-                ]),
+                onTap: () =>
+                    _anchoredObjectQuery([QuantityType.stepCount.identifier, QuantityType.heartRate.identifier]),
               ),
               ActionCard(
                 icon: Icons.analytics,
@@ -116,13 +101,17 @@ class _ObserveScreenState extends State<ObserveScreen> with HealthKitReporterMix
       // 取消之前的订阅
       _currentSubscription?.cancel();
 
-      _currentSubscription = HealthKitReporter.observerQuery(identifiers, null, onUpdate: (identifier) async {
-        _addObservation('观察到 $identifier 数据更新');
+      _currentSubscription = HealthKitReporter.observerQuery(
+        identifiers,
+        null,
+        onUpdate: (identifier) async {
+          _addObservation('观察到 $identifier 数据更新');
 
-        const iOSDetails = DarwinNotificationDetails();
-        const details = NotificationDetails(iOS: iOSDetails);
-        await widget.flutterLocalNotificationsPlugin.show(0, '健康数据更新', identifier, details);
-      });
+          const iOSDetails = DarwinNotificationDetails();
+          const details = NotificationDetails(iOS: iOSDetails);
+          await widget.flutterLocalNotificationsPlugin.show(0, '健康数据更新', identifier, details);
+        },
+      );
 
       for (final identifier in identifiers) {
         final isSet = await HealthKitReporter.enableBackgroundDelivery(identifier, UpdateFrequency.immediate);
@@ -174,9 +163,12 @@ class _ObserveScreenState extends State<ObserveScreen> with HealthKitReporterMix
       // 取消之前的订阅
       _currentSubscription?.cancel();
 
-      _currentSubscription = HealthKitReporter.queryActivitySummaryUpdates(predicate, onUpdate: (samples) {
-        _addObservation('活动摘要更新: ${samples.length} 个摘要');
-      });
+      _currentSubscription = HealthKitReporter.queryActivitySummaryUpdates(
+        predicate,
+        onUpdate: (samples) {
+          _addObservation('活动摘要更新: ${samples.length} 个摘要');
+        },
+      );
 
       _addObservation('开始监控活动摘要更新');
     } catch (e) {
@@ -199,12 +191,7 @@ class _ObserveScreenState extends State<ObserveScreen> with HealthKitReporterMix
       const intervalComponents = DateComponents(month: 1);
 
       _currentSubscription = HealthKitReporter.statisticsCollectionQuery(
-        [
-          PreferredUnit(
-            QuantityType.stepCount.identifier,
-            'count',
-          ),
-        ],
+        [PreferredUnit(QuantityType.stepCount.identifier, 'count')],
         predicate,
         anchorDate,
         enumerateFrom,

@@ -56,11 +56,7 @@ class MyApp extends StatelessWidget {
           centerTitle: true,
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
-          titleTextStyle: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          titleTextStyle: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
           systemOverlayStyle: SystemUiOverlayStyle.dark,
         ),
 
@@ -80,14 +76,9 @@ class MyApp extends StatelessWidget {
             backgroundColor: const Color(0xFF007AFF),
             foregroundColor: Colors.white,
             elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ),
 
@@ -95,14 +86,9 @@ class MyApp extends StatelessWidget {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: const Color(0xFF007AFF),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ),
 
@@ -132,14 +118,8 @@ class MyApp extends StatelessWidget {
           unselectedLabelColor: Colors.grey,
           indicatorColor: Color(0xFF007AFF),
           indicatorSize: TabBarIndicatorSize.label,
-          labelStyle: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-          unselectedLabelStyle: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          ),
+          labelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          unselectedLabelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
         ),
 
         // 底部导航栏主题
@@ -156,32 +136,23 @@ class MyApp extends StatelessWidget {
           backgroundColor: Color(0xFF007AFF),
           foregroundColor: Colors.white,
           elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
         ),
 
         // 对话框主题
         dialogTheme: DialogThemeData(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           backgroundColor: Colors.white,
           elevation: 8,
         ),
 
         // 分割线主题
-        dividerTheme: DividerThemeData(
-          color: Colors.grey.shade200,
-          thickness: 0.5,
-        ),
+        dividerTheme: DividerThemeData(color: Colors.grey.shade200, thickness: 0.5),
 
         // 列表瓦片主题
         listTileTheme: ListTileThemeData(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           tileColor: Colors.white,
         ),
 
@@ -190,66 +161,18 @@ class MyApp extends StatelessWidget {
 
         // 文本主题
         textTheme: const TextTheme(
-          displayLarge: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-          displayMedium: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-          displaySmall: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-          ),
-          headlineLarge: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-          ),
-          headlineMedium: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-          ),
-          headlineSmall: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-          ),
-          titleLarge: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-          ),
-          titleMedium: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-          ),
-          titleSmall: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey,
-          ),
-          bodyLarge: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            color: Colors.black,
-          ),
-          bodyMedium: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: Colors.black,
-          ),
-          bodySmall: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            color: Colors.grey,
-          ),
+          displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
+          displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
+          displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.black),
+          headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.black),
+          headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black),
+          headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
+          titleLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+          titleMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black),
+          titleSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey),
+          bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
+          bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black),
+          bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.grey),
         ),
       ),
       home: const HomeScreen(),

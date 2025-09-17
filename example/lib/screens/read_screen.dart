@@ -26,38 +26,19 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ResultDisplay(
-          title: '查询结果',
-          result: _lastResult,
-          isLoading: _isLoading,
-          placeholder: '点击下方按钮开始查询健康数据',
-        ),
+        ResultDisplay(title: '查询结果', result: _lastResult, isLoading: _isLoading, placeholder: '点击下方按钮开始查询健康数据'),
         Expanded(
           child: ListView(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              bottom: MediaQuery.paddingOf(context).bottom,
-            ),
+            padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.paddingOf(context).bottom),
             children: [
-              ActionCard(
-                icon: Icons.favorite,
-                title: '心率数据',
-                subtitle: '查询用户心率相关数据',
-                onTap: () => _queryHeartRate(),
-              ),
+              ActionCard(icon: Icons.favorite, title: '心率数据', subtitle: '查询用户心率相关数据', onTap: () => _queryHeartRate()),
               ActionCard(
                 icon: Icons.directions_walk,
                 title: '步数统计',
                 subtitle: '查询用户步数和运动数据',
                 onTap: () => _querySteps(),
               ),
-              ActionCard(
-                icon: Icons.bedtime,
-                title: '睡眠分析',
-                subtitle: '查询用户睡眠质量数据',
-                onTap: () => _querySleep(),
-              ),
+              ActionCard(icon: Icons.bedtime, title: '睡眠分析', subtitle: '查询用户睡眠质量数据', onTap: () => _querySleep()),
               ActionCard(
                 icon: Icons.fitness_center,
                 title: '运动记录',
@@ -156,9 +137,11 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
 
       if (quantities.isNotEmpty) {
         final latest = quantities.first;
-        _updateResult('最新心率: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
-            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
-            '数据点数量: ${quantities.length}');
+        _updateResult(
+          '最新心率: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
+          '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+          '数据点数量: ${quantities.length}',
+        );
       } else {
         _updateResult('未找到心率数据');
       }
@@ -175,10 +158,12 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
       final samples = await HealthKitReporter.sampleQuery(QuantityType.stepCount.identifier, predicate);
       if (samples.isNotEmpty) {
         final totalSteps = samples.fold<int>(0, (sum, sample) => sum + (sample.harmonized.value as int));
-        _updateResult('总步数: $totalSteps\n'
-            '数据点数量: ${samples.length}\n'
-            '时间范围: ${_convertToDateTime(samples.last.startTimestamp)} - '
-            '${_convertToDateTime(samples.first.endTimestamp)}');
+        _updateResult(
+          '总步数: $totalSteps\n'
+          '数据点数量: ${samples.length}\n'
+          '时间范围: ${_convertToDateTime(samples.last.startTimestamp)} - '
+          '${_convertToDateTime(samples.first.endTimestamp)}',
+        );
       } else {
         _updateResult('未找到步数数据');
       }
@@ -194,9 +179,11 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
     try {
       final categories = await HealthKitReporter.categoryQuery(CategoryType.sleepAnalysis, predicate);
       if (categories.isNotEmpty) {
-        _updateResult('睡眠记录数量: ${categories.length}\n'
-            '最新记录: ${_convertToDateTime(categories.first.startTimestamp)}\n'
-            '睡眠类型: ${categories.first.harmonized.value}');
+        _updateResult(
+          '睡眠记录数量: ${categories.length}\n'
+          '最新记录: ${_convertToDateTime(categories.first.startTimestamp)}\n'
+          '睡眠类型: ${categories.first.harmonized.value}',
+        );
       } else {
         _updateResult('未找到睡眠数据');
       }
@@ -212,11 +199,15 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
     try {
       final workouts = await HealthKitReporter.workoutQuery(predicate);
       if (workouts.isNotEmpty) {
-        final totalCalories =
-            workouts.fold<double>(0, (sum, workout) => sum + (workout.harmonized.totalEnergyBurned ?? 0));
-        _updateResult('运动记录数量: ${workouts.length}\n'
-            '总消耗卡路里: ${totalCalories.toStringAsFixed(1)} kcal\n'
-            '最新运动: ${workouts.first.harmonized.type.description}');
+        final totalCalories = workouts.fold<double>(
+          0,
+          (sum, workout) => sum + (workout.harmonized.totalEnergyBurned ?? 0),
+        );
+        _updateResult(
+          '运动记录数量: ${workouts.length}\n'
+          '总消耗卡路里: ${totalCalories.toStringAsFixed(1)} kcal\n'
+          '最新运动: ${workouts.first.harmonized.type.description}',
+        );
       } else {
         _updateResult('未找到运动数据');
       }
@@ -232,14 +223,13 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
     try {
       final samples = await HealthKitReporter.sampleQuery(
         ClinicalType.allergyRecord.identifier,
-        Predicate(
-          DateTime.now().add(const Duration(days: -7000)),
-          DateTime.now(),
-        ),
+        Predicate(DateTime.now().add(const Duration(days: -7000)), DateTime.now()),
       );
       if (samples.isNotEmpty) {
-        _updateResult('临床记录数量: ${samples.length}\n'
-            '记录类型: ${samples.first.identifier}');
+        _updateResult(
+          '临床记录数量: ${samples.length}\n'
+          '记录类型: ${samples.first.identifier}',
+        );
       } else {
         _updateResult('未找到临床记录数据');
       }
@@ -253,11 +243,15 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
   Future<void> _queryElectrocardiograms() async {
     _setLoading(true);
     try {
-      final electrocardiograms =
-          await HealthKitReporter.electrocardiogramQuery(predicate, withVoltageMeasurements: true);
+      final electrocardiograms = await HealthKitReporter.electrocardiogramQuery(
+        predicate,
+        withVoltageMeasurements: true,
+      );
       if (electrocardiograms.isNotEmpty) {
-        _updateResult('心电图记录数量: ${electrocardiograms.length}\n'
-            '最新记录: ${_convertToDateTime(electrocardiograms.first.startTimestamp)}');
+        _updateResult(
+          '心电图记录数量: ${electrocardiograms.length}\n'
+          '最新记录: ${_convertToDateTime(electrocardiograms.first.startTimestamp)}',
+        );
       } else {
         _updateResult('未找到心电图数据');
       }
@@ -271,11 +265,15 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
   Future<void> _queryBloodPressure() async {
     _setLoading(true);
     try {
-      final correlations =
-          await HealthKitReporter.correlationQuery(CorrelationType.bloodPressure.identifier, predicate);
+      final correlations = await HealthKitReporter.correlationQuery(
+        CorrelationType.bloodPressure.identifier,
+        predicate,
+      );
       if (correlations.isNotEmpty) {
-        _updateResult('血压记录数量: ${correlations.length}\n'
-            '最新记录: ${_convertToDateTime(correlations.first.startTimestamp)}');
+        _updateResult(
+          '血压记录数量: ${correlations.length}\n'
+          '最新记录: ${_convertToDateTime(correlations.first.startTimestamp)}',
+        );
       } else {
         _updateResult('未找到血压数据');
       }
@@ -291,16 +289,21 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
     try {
       final preferredUnits = await HealthKitReporter.preferredUnits([QuantityType.bloodPressureSystolic]);
       final systolicUnits = preferredUnits.first.unit;
-      final quantities =
-          await HealthKitReporter.quantityQuery(QuantityType.bloodPressureSystolic, systolicUnits, predicate);
+      final quantities = await HealthKitReporter.quantityQuery(
+        QuantityType.bloodPressureSystolic,
+        systolicUnits,
+        predicate,
+      );
 
       if (quantities.isNotEmpty) {
         final latest = quantities.first;
         final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
-        _updateResult('最新收缩压: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
-            '平均收缩压: ${averageValue.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
-            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
-            '数据点数量: ${quantities.length}');
+        _updateResult(
+          '最新收缩压: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
+          '平均收缩压: ${averageValue.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
+          '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+          '数据点数量: ${quantities.length}',
+        );
       } else {
         _updateResult('未找到收缩压数据');
       }
@@ -316,16 +319,21 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
     try {
       final preferredUnits = await HealthKitReporter.preferredUnits([QuantityType.bloodPressureDiastolic]);
       final diastolicUnits = preferredUnits.first.unit;
-      final quantities =
-          await HealthKitReporter.quantityQuery(QuantityType.bloodPressureDiastolic, diastolicUnits, predicate);
+      final quantities = await HealthKitReporter.quantityQuery(
+        QuantityType.bloodPressureDiastolic,
+        diastolicUnits,
+        predicate,
+      );
 
       if (quantities.isNotEmpty) {
         final latest = quantities.first;
         final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
-        _updateResult('最新舒张压: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
-            '平均舒张压: ${averageValue.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
-            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
-            '数据点数量: ${quantities.length}');
+        _updateResult(
+          '最新舒张压: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
+          '平均舒张压: ${averageValue.toStringAsFixed(1)} ${latest.harmonized.unit}\n'
+          '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+          '数据点数量: ${quantities.length}',
+        );
       } else {
         _updateResult('未找到舒张压数据');
       }
@@ -341,8 +349,10 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
     try {
       final activitySummary = await HealthKitReporter.queryActivitySummary(predicate);
       if (activitySummary.isNotEmpty) {
-        _updateResult('活动摘要数量: ${activitySummary.length}\n'
-            '最新摘要: ${activitySummary.first.date}');
+        _updateResult(
+          '活动摘要数量: ${activitySummary.length}\n'
+          '最新摘要: ${activitySummary.first.date}',
+        );
       } else {
         _updateResult('未找到活动摘要数据');
       }
@@ -375,10 +385,12 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
       if (quantities.isNotEmpty) {
         final latest = quantities.first;
         final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
-        _updateResult('最新血氧饱和度: ${(latest.harmonized.value * 100)}%\n'
-            '平均血氧饱和度: ${(averageValue * 100)}%\n'
-            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
-            '数据点数量: ${quantities.length}');
+        _updateResult(
+          '最新血氧饱和度: ${(latest.harmonized.value * 100)}%\n'
+          '平均血氧饱和度: ${(averageValue * 100)}%\n'
+          '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+          '数据点数量: ${quantities.length}',
+        );
       } else {
         _updateResult('未找到血氧饱和度数据');
       }
@@ -394,16 +406,21 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
     try {
       final preferredUnits = await HealthKitReporter.preferredUnits([QuantityType.environmentalAudioExposure]);
       final audioUnits = preferredUnits.first.unit;
-      final quantities =
-          await HealthKitReporter.quantityQuery(QuantityType.environmentalAudioExposure, audioUnits, predicate);
+      final quantities = await HealthKitReporter.quantityQuery(
+        QuantityType.environmentalAudioExposure,
+        audioUnits,
+        predicate,
+      );
 
       if (quantities.isNotEmpty) {
         final latest = quantities.first;
         final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
-        _updateResult('最新环境音量: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
-            '平均环境音量: ${averageValue.toStringAsFixed(2)} ${latest.harmonized.unit}\n'
-            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
-            '数据点数量: ${quantities.length}');
+        _updateResult(
+          '最新环境音量: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
+          '平均环境音量: ${averageValue.toStringAsFixed(2)} ${latest.harmonized.unit}\n'
+          '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+          '数据点数量: ${quantities.length}',
+        );
       } else {
         _updateResult('未找到环境音量数据');
       }
@@ -419,16 +436,21 @@ class _ReadScreenState extends State<ReadScreen> with HealthKitReporterMixin {
     try {
       final preferredUnits = await HealthKitReporter.preferredUnits([QuantityType.headphoneAudioExposure]);
       final audioUnits = preferredUnits.first.unit;
-      final quantities =
-          await HealthKitReporter.quantityQuery(QuantityType.headphoneAudioExposure, audioUnits, predicate);
+      final quantities = await HealthKitReporter.quantityQuery(
+        QuantityType.headphoneAudioExposure,
+        audioUnits,
+        predicate,
+      );
 
       if (quantities.isNotEmpty) {
         final latest = quantities.first;
         final averageValue = quantities.fold<double>(0, (sum, q) => sum + q.harmonized.value) / quantities.length;
-        _updateResult('最新耳机通知: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
-            '平均耳机通知: ${averageValue.toStringAsFixed(2)} ${latest.harmonized.unit}\n'
-            '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
-            '数据点数量: ${quantities.length}');
+        _updateResult(
+          '最新耳机通知: ${latest.harmonized.value} ${latest.harmonized.unit}\n'
+          '平均耳机通知: ${averageValue.toStringAsFixed(2)} ${latest.harmonized.unit}\n'
+          '时间: ${_convertToDateTime(latest.startTimestamp)}\n'
+          '数据点数量: ${quantities.length}',
+        );
       } else {
         _updateResult('未找到耳机通知数据');
       }

@@ -76,11 +76,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
         backgroundColor: Colors.white,
         title: const Text(
           '过滤条件',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-            color: Colors.black,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.black),
         ),
       ),
       body: SafeArea(
@@ -121,17 +117,9 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     side: BorderSide(color: Colors.grey.shade300),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text(
-                    '重置',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                  ),
+                  child: const Text('重置', style: TextStyle(fontSize: 16, color: Colors.black)),
                 ),
               ),
               const SizedBox(width: 16),
@@ -142,18 +130,10 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    '应用',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: const Text('应用', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -167,11 +147,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: Colors.black87,
-      ),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
     );
   }
 
@@ -179,13 +155,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
   Widget _buildDataTypeSelector() {
     return DropdownButton2<String>(
       value: _selectedIdentifier,
-      hint: const Text(
-        '选择数据类型',
-        style: TextStyle(
-          fontSize: 16,
-          color: Colors.grey,
-        ),
-      ),
+      hint: const Text('选择数据类型', style: TextStyle(fontSize: 16, color: Colors.grey)),
       items: [
         const DropdownMenuItem(value: null, child: Text('全部')),
         ..._getGroupedIdentifierItems(),
@@ -215,13 +185,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4))],
         ),
         elevation: 0, // 设置为0，因为我们使用自定义的boxShadow
         offset: const Offset(0, -8),
@@ -232,10 +196,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
           thumbVisibility: WidgetStateProperty.all(true),
         ),
       ),
-      menuItemStyleData: const MenuItemStyleData(
-        height: 40,
-        padding: EdgeInsets.symmetric(horizontal: 16),
-      ),
+      menuItemStyleData: const MenuItemStyleData(height: 40, padding: EdgeInsets.symmetric(horizontal: 16)),
       iconStyleData: const IconStyleData(
         icon: Icon(Icons.keyboard_arrow_down),
         iconSize: 20,
@@ -247,27 +208,17 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
         searchInnerWidgetHeight: 50,
         searchInnerWidget: Container(
           height: 60,
-          padding: const EdgeInsets.only(
-            top: 8,
-            bottom: 4,
-            right: 8,
-            left: 8,
-          ),
+          padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
           child: TextFormField(
             expands: true,
             maxLines: null,
             controller: _searchController,
             decoration: InputDecoration(
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
               hintText: '搜索数据类型...',
               hintStyle: const TextStyle(fontSize: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
                       onPressed: () {
@@ -300,13 +251,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
   Widget _buildSourceNameSelector() {
     return DropdownButton2<String>(
       value: _selectedSourceName,
-      hint: const Text(
-        '选择数据来源',
-        style: TextStyle(
-          fontSize: 16,
-          color: Colors.grey,
-        ),
-      ),
+      hint: const Text('选择数据来源', style: TextStyle(fontSize: 16, color: Colors.grey)),
       items: [
         const DropdownMenuItem(value: null, child: Text('全部')),
         ..._getGroupedSourceNameItems(),
@@ -340,10 +285,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
         elevation: 8,
         offset: const Offset(0, -8),
       ),
-      menuItemStyleData: const MenuItemStyleData(
-        height: 40,
-        padding: EdgeInsets.symmetric(horizontal: 16),
-      ),
+      menuItemStyleData: const MenuItemStyleData(height: 40, padding: EdgeInsets.symmetric(horizontal: 16)),
       iconStyleData: const IconStyleData(
         icon: Icon(Icons.keyboard_arrow_down),
         iconSize: 20,
@@ -355,27 +297,17 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
         searchInnerWidgetHeight: 50,
         searchInnerWidget: Container(
           height: 60,
-          padding: const EdgeInsets.only(
-            top: 8,
-            bottom: 4,
-            right: 8,
-            left: 8,
-          ),
+          padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
           child: TextFormField(
             expands: true,
             maxLines: null,
             controller: _sourceSearchController,
             decoration: InputDecoration(
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
               hintText: '搜索数据来源...',
               hintStyle: const TextStyle(fontSize: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               suffixIcon: _sourceSearchController.text.isNotEmpty
                   ? IconButton(
                       onPressed: () {
@@ -412,19 +344,11 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
           child: Row(
             children: [
               Expanded(
-                child: _buildDateButton(
-                  label: '开始日期',
-                  date: _startDate,
-                  onTap: () => _selectDate(true),
-                ),
+                child: _buildDateButton(label: '开始日期', date: _startDate, onTap: () => _selectDate(true)),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildDateButton(
-                  label: '结束日期',
-                  date: _endDate,
-                  onTap: () => _selectDate(false),
-                ),
+                child: _buildDateButton(label: '结束日期', date: _endDate, onTap: () => _selectDate(false)),
               ),
             ],
           ),
@@ -441,20 +365,10 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.warning,
-                  size: 16,
-                  color: const Color(0xFFFF3B30),
-                ),
+                Icon(Icons.warning, size: 16, color: const Color(0xFFFF3B30)),
                 const SizedBox(width: 8),
                 Flexible(
-                  child: Text(
-                    '开始日期不能晚于结束日期',
-                    style: TextStyle(
-                      color: const Color(0xFFFF3B30),
-                      fontSize: 12,
-                    ),
-                  ),
+                  child: Text('开始日期不能晚于结束日期', style: TextStyle(color: const Color(0xFFFF3B30), fontSize: 12)),
                 ),
               ],
             ),
@@ -464,11 +378,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
   }
 
   /// 构建日期按钮
-  Widget _buildDateButton({
-    required String label,
-    required DateTime? date,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildDateButton({required String label, required DateTime? date, required VoidCallback onTap}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -485,19 +395,12 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 20,
-                  color: date != null ? Colors.blue : Colors.grey.shade400,
-                ),
+                Icon(Icons.calendar_today, size: 20, color: date != null ? Colors.blue : Colors.grey.shade400),
                 const SizedBox(width: 12),
                 Flexible(
                   child: Text(
                     date?.toString().substring(0, 10) ?? label,
-                    style: TextStyle(
-                      color: date != null ? Colors.black87 : Colors.grey.shade600,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: date != null ? Colors.black87 : Colors.grey.shade600, fontSize: 16),
                   ),
                 ),
               ],
@@ -512,13 +415,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
   Widget _buildValiditySelector() {
     return DropdownButton2<bool>(
       value: _isValidFilter,
-      hint: const Text(
-        '选择有效性',
-        style: TextStyle(
-          fontSize: 16,
-          color: Colors.grey,
-        ),
-      ),
+      hint: const Text('选择有效性', style: TextStyle(fontSize: 16, color: Colors.grey)),
       items: const [
         DropdownMenuItem(value: null, child: Text('全部')),
         DropdownMenuItem(value: true, child: Text('有效')),
@@ -549,10 +446,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
         elevation: 8,
         offset: const Offset(0, -8),
       ),
-      menuItemStyleData: const MenuItemStyleData(
-        height: 40,
-        padding: EdgeInsets.symmetric(horizontal: 16),
-      ),
+      menuItemStyleData: const MenuItemStyleData(height: 40, padding: EdgeInsets.symmetric(horizontal: 16)),
       iconStyleData: const IconStyleData(
         icon: Icon(Icons.keyboard_arrow_down),
         iconSize: 20,
@@ -572,11 +466,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
       lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.blue,
-            ),
-          ),
+          data: Theme.of(context).copyWith(colorScheme: const ColorScheme.light(primary: Colors.blue)),
           child: child!,
         );
       },
@@ -693,10 +583,7 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
         'HKQuantityTypeIdentifierNumberOfTimesFallen',
         'HKQuantityTypeIdentifierWaistCircumference',
       ],
-      '睡眠': [
-        'HKCategoryTypeIdentifierSleepAnalysis',
-        'HKCategoryTypeIdentifierSleepChanges',
-      ],
+      '睡眠': ['HKCategoryTypeIdentifierSleepAnalysis', 'HKCategoryTypeIdentifierSleepChanges'],
       '营养': [
         'HKQuantityTypeIdentifierDietaryBiotin',
         'HKQuantityTypeIdentifierDietaryCaffeine',
@@ -767,42 +654,42 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
       // 只添加有数据的分类
       if (identifiers.isNotEmpty) {
         // 添加分类标题
-        items.add(DropdownMenuItem<String>(
-          value: '__CATEGORY_${category}__', // 使用特殊值标识分类标题
-          enabled: false,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              '── $category ──',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
+        items.add(
+          DropdownMenuItem<String>(
+            value: '__CATEGORY_${category}__', // 使用特殊值标识分类标题
+            enabled: false,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                '── $category ──',
+                style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold, fontSize: 12),
               ),
             ),
           ),
-        ));
+        );
 
         // 添加该分类下的所有标识符
         for (final identifier in identifiers) {
-          items.add(DropdownMenuItem<String>(
-            value: identifier,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    HealthIconService.getIconForIdentifier(identifier),
-                    size: 16,
-                    color: HealthIconService.getColorForIdentifier(identifier),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(HealthIconService.getDisplayNameForIdentifier(identifier)),
-                ],
+          items.add(
+            DropdownMenuItem<String>(
+              value: identifier,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      HealthIconService.getIconForIdentifier(identifier),
+                      size: 16,
+                      color: HealthIconService.getColorForIdentifier(identifier),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(HealthIconService.getDisplayNameForIdentifier(identifier)),
+                  ],
+                ),
               ),
             ),
-          ));
+          );
         }
       }
     });
@@ -823,31 +710,28 @@ class _HealthFilterScreenState extends State<HealthFilterScreen> {
       // 只添加有数据的分类
       if (sourceNames.isNotEmpty) {
         // 添加分类标题
-        items.add(DropdownMenuItem<String>(
-          value: '__CATEGORY_${category}__', // 使用特殊值标识分类标题
-          enabled: false,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              '── $category ──',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
+        items.add(
+          DropdownMenuItem<String>(
+            value: '__CATEGORY_${category}__', // 使用特殊值标识分类标题
+            enabled: false,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                '── $category ──',
+                style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold, fontSize: 12),
               ),
             ),
           ),
-        ));
+        );
 
         // 添加该分类下的所有数据来源
         for (final sourceName in sourceNames) {
-          items.add(DropdownMenuItem<String>(
-            value: sourceName,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Text(sourceName),
+          items.add(
+            DropdownMenuItem<String>(
+              value: sourceName,
+              child: Container(padding: const EdgeInsets.symmetric(vertical: 4), child: Text(sourceName)),
             ),
-          ));
+          );
         }
       }
     });

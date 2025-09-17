@@ -4,11 +4,7 @@ class MonitorStatus extends StatelessWidget {
   final bool isObserving;
   final String? latestUpdate;
 
-  const MonitorStatus({
-    super.key,
-    required this.isObserving,
-    this.latestUpdate,
-  });
+  const MonitorStatus({super.key, required this.isObserving, this.latestUpdate});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +15,7 @@ class MonitorStatus extends StatelessWidget {
       decoration: BoxDecoration(
         color: isObserving ? Colors.green[50] : Colors.orange[50],
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isObserving ? Colors.green[300]! : Colors.orange[300]!,
-        ),
+        border: Border.all(color: isObserving ? Colors.green[300]! : Colors.orange[300]!),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,15 +39,9 @@ class MonitorStatus extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           if (latestUpdate != null && latestUpdate!.isNotEmpty)
-            Text(
-              '最新更新: $latestUpdate',
-              style: const TextStyle(fontSize: 12),
-            )
+            Text('最新更新: $latestUpdate', style: const TextStyle(fontSize: 12))
           else
-            const Text(
-              '点击下方按钮开始监控健康数据变化',
-              style: TextStyle(color: Colors.grey),
-            ),
+            const Text('点击下方按钮开始监控健康数据变化', style: TextStyle(color: Colors.grey)),
         ],
       ),
     );

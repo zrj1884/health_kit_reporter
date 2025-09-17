@@ -9,10 +9,7 @@ import 'statistics_screen.dart';
 import 'health_filter_screen.dart';
 
 class HealthDatabaseScreen extends StatefulWidget {
-  const HealthDatabaseScreen({
-    super.key,
-    required this.flutterLocalNotificationsPlugin,
-  });
+  const HealthDatabaseScreen({super.key, required this.flutterLocalNotificationsPlugin});
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
@@ -44,6 +41,9 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
 
   // 统计信息
   Map<String, dynamic>? _statistics;
+
+  // 滚动到顶部按钮显示状态
+  bool _showScrollToTopButton = false;
 
   // 可用的标识符
   final List<String> _availableIdentifiers = [
@@ -172,6 +172,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _loadRecords();
     _loadStatistics();
     // _startSync();
@@ -179,9 +180,22 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _syncService.stopSync();
     super.dispose();
+  }
+
+  /// 滚动监听器
+  void _onScroll() {
+    const double scrollThreshold = 200.0; // 滚动超过200像素时显示按钮
+    final bool shouldShow = _scrollController.offset > scrollThreshold;
+
+    if (shouldShow != _showScrollToTopButton) {
+      setState(() {
+        _showScrollToTopButton = shouldShow;
+      });
+    }
   }
 
   Future<void> _loadRecords() async {
@@ -363,23 +377,14 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
 
   void _scrollToTop() {
     if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
   }
 
   void _showStatisticsDialog() {
     if (_statistics == null) return;
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => StatisticsScreen(statistics: _statistics!),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => StatisticsScreen(statistics: _statistics!)));
   }
 
   Future<void> _clearAllRecords() async {
@@ -389,16 +394,10 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         title: const Text('确认清空'),
         content: const Text('确定要清空所有记录吗？此操作不可撤销。'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消')),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              '清空',
-              style: TextStyle(color: Color(0xFFFF3B30)),
-            ),
+            child: const Text('清空', style: TextStyle(color: Color(0xFFFF3B30))),
           ),
         ],
       ),
@@ -428,16 +427,11 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
       builder: (context) => AlertDialog(
         title: const Text('确认删除'),
         content: Text(
-            '确定要删除这条记录吗？\n${HealthIconService.getDisplayNameForIdentifier(record.identifier)}: ${_formatValue(record.value, record.unit)}'),
+          '确定要删除这条记录吗？\n${HealthIconService.getDisplayNameForIdentifier(record.identifier)}: ${_formatValue(record.value, record.unit)}',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('删除'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('删除')),
         ],
       ),
     );
@@ -495,12 +489,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.shade200,
-                  width: 0.5,
-                ),
-              ),
+              border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 0.5)),
             ),
             child: Row(
               children: [
@@ -546,18 +535,11 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFF007AFF).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: const Color(0xFF007AFF).withValues(alpha: 0.3),
-                            width: 0.5,
-                          ),
+                          border: Border.all(color: const Color(0xFF007AFF).withValues(alpha: 0.3), width: 0.5),
                         ),
                         child: Text(
                           '${_filteredRecords.length}/${_getFilteredTotalCount()}',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF007AFF),
-                          ),
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFF007AFF)),
                         ),
                       ),
                     ],
@@ -568,22 +550,14 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
                   mainAxisSize: MainAxisSize.min,
                   spacing: 12,
                   children: [
-                    _buildCompactIconButton(
-                      icon: Icons.analytics,
-                      onPressed: _showStatisticsDialog,
-                      tooltip: '统计信息',
-                    ),
+                    _buildCompactIconButton(icon: Icons.analytics, onPressed: _showStatisticsDialog, tooltip: '统计信息'),
                     _buildCompactIconButton(
                       icon: _hasActiveFilters ? Icons.filter_list : Icons.filter_list_off,
                       onPressed: _showFilterDialog,
                       tooltip: '过滤',
                       iconColor: _hasActiveFilters ? const Color(0xFFFF9500) : null,
                     ),
-                    _buildCompactIconButton(
-                      icon: Icons.refresh,
-                      onPressed: _refreshList,
-                      tooltip: '刷新',
-                    ),
+                    _buildCompactIconButton(icon: Icons.refresh, onPressed: _refreshList, tooltip: '刷新'),
                     _buildCompactIconButton(
                       icon: Icons.delete_forever,
                       onPressed: _clearAllRecords,
@@ -601,200 +575,168 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
             child: _isLoading && _currentPage == 0
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredRecords.isEmpty
-                    ? const Center(child: Text('暂无数据'))
-                    : NotificationListener<ScrollNotification>(
-                        onNotification: (ScrollNotification scrollInfo) {
-                          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                            _loadMoreData();
-                          }
-                          return false;
-                        },
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          itemCount: _filteredRecords.length + (_hasMoreData ? 1 : 0),
-                          itemBuilder: (context, index) {
-                            if (index == _filteredRecords.length) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            }
+                ? const Center(child: Text('暂无数据'))
+                : NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                        _loadMoreData();
+                      }
+                      return false;
+                    },
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      itemCount: _filteredRecords.length + (_hasMoreData ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _filteredRecords.length) {
+                          return const Center(
+                            child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()),
+                          );
+                        }
 
-                            final record = _filteredRecords[index];
-                            return Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 4,
+                        final record = _filteredRecords[index];
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.grey.shade200, width: 0.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
                               ),
+                            ],
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                            leading: Container(
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
+                                color: record.isValid
+                                    ? HealthIconService.getBackgroundColorForIdentifier(record.identifier)
+                                    : Colors.grey.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: Colors.grey.shade200,
+                                  color: record.isValid
+                                      ? HealthIconService.getColorForIdentifier(
+                                          record.identifier,
+                                        ).withValues(alpha: 0.3)
+                                      : Colors.grey.withValues(alpha: 0.3),
                                   width: 0.5,
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.03),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ],
                               ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                                leading: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: record.isValid
-                                        ? HealthIconService.getBackgroundColorForIdentifier(record.identifier)
-                                        : Colors.grey.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: record.isValid
-                                          ? HealthIconService.getColorForIdentifier(record.identifier)
-                                              .withValues(alpha: 0.3)
-                                          : Colors.grey.withValues(alpha: 0.3),
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    HealthIconService.getIconForIdentifier(record.identifier),
-                                    color: record.isValid
-                                        ? HealthIconService.getColorForIdentifier(record.identifier)
-                                        : Colors.grey,
-                                    size: 20,
-                                  ),
-                                ),
-                                title: Text(
-                                  HealthIconService.getDisplayNameForIdentifier(record.identifier),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Icon(
+                                HealthIconService.getIconForIdentifier(record.identifier),
+                                color: record.isValid
+                                    ? HealthIconService.getColorForIdentifier(record.identifier)
+                                    : Colors.grey,
+                                size: 20,
+                              ),
+                            ),
+                            title: Text(
+                              HealthIconService.getDisplayNameForIdentifier(record.identifier),
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 2),
+                                Row(
                                   children: [
-                                    const SizedBox(height: 2),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.info_outline,
-                                          size: 12,
-                                          color: Colors.grey.shade600,
+                                    Icon(Icons.info_outline, size: 12, color: Colors.grey.shade600),
+                                    const SizedBox(width: 3),
+                                    Expanded(
+                                      child: Text(
+                                        _formatValue(record.value, record.unit),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade700,
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                        const SizedBox(width: 3),
-                                        Expanded(
-                                          child: Text(
-                                            _formatValue(record.value, record.unit),
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey.shade700,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 1),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.access_time,
-                                          size: 12,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                        const SizedBox(width: 3),
-                                        Text(
-                                          record.startDate.toString().substring(0, 19),
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.grey.shade600,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Icon(
-                                          Icons.source,
-                                          size: 12,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                        const SizedBox(width: 3),
-                                        Expanded(
-                                          child: Text(
-                                            record.sourceName,
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.grey.shade600,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                trailing: Container(
-                                  margin: const EdgeInsets.only(left: 4),
-                                  child: PopupMenuButton<String>(
-                                    icon: Icon(
-                                      Icons.more_vert,
-                                      color: Colors.grey.shade600,
-                                      size: 18,
+                                const SizedBox(height: 1),
+                                Row(
+                                  children: [
+                                    Icon(Icons.access_time, size: 12, color: Colors.grey.shade600),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      record.startDate.toString().substring(0, 19),
+                                      style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    itemBuilder: (context) => [
-                                      PopupMenuItem<String>(
-                                        value: 'delete',
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.delete_outline,
-                                              color: const Color(0xFFFF3B30),
-                                              size: 18,
-                                            ),
-                                            const SizedBox(width: 10),
-                                            const Text(
-                                              '删除',
-                                              style: TextStyle(
-                                                color: Color(0xFFFF3B30),
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                    const SizedBox(width: 8),
+                                    Icon(Icons.source, size: 12, color: Colors.grey.shade600),
+                                    const SizedBox(width: 3),
+                                    Expanded(
+                                      child: Text(
+                                        record.sourceName,
+                                        style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ],
-                                    onSelected: (value) {
-                                      if (value == 'delete') {
-                                        _deleteRecord(record);
-                                      }
-                                    },
-                                  ),
+                                    ),
+                                  ],
                                 ),
+                              ],
+                            ),
+                            trailing: Container(
+                              margin: const EdgeInsets.only(left: 4),
+                              child: PopupMenuButton<String>(
+                                icon: Icon(Icons.more_vert, color: Colors.grey.shade600, size: 18),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                itemBuilder: (context) => [
+                                  PopupMenuItem<String>(
+                                    value: 'delete',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.delete_outline, color: const Color(0xFFFF3B30), size: 18),
+                                        const SizedBox(width: 10),
+                                        const Text(
+                                          '删除',
+                                          style: TextStyle(
+                                            color: Color(0xFFFF3B30),
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                onSelected: (value) {
+                                  if (value == 'delete') {
+                                    _deleteRecord(record);
+                                  }
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _startSync,
-        tooltip: '开始同步',
-        child: const Icon(Icons.sync),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: _showScrollToTopButton
+          ? FloatingActionButton(
+              onPressed: _scrollToTop,
+              tooltip: '滚动到顶部',
+              backgroundColor: const Color(0xFF007AFF),
+              child: const Icon(Icons.keyboard_arrow_up, color: Colors.white),
+            )
+          : FloatingActionButton(
+              onPressed: _startSync,
+              tooltip: '开始同步',
+              backgroundColor: _isSyncing ? const Color(0xFF34C759) : const Color(0xFF007AFF),
+              child: Icon(Icons.sync, color: Colors.white),
+            ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -811,11 +753,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         borderRadius: BorderRadius.circular(6),
         child: Container(
           padding: const EdgeInsets.all(6),
-          child: Icon(
-            icon,
-            size: 18,
-            color: iconColor ?? const Color(0xFF007AFF),
-          ),
+          child: Icon(icon, size: 18, color: iconColor ?? const Color(0xFF007AFF)),
         ),
       ),
     );
