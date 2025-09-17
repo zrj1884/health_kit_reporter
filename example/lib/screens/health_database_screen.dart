@@ -173,9 +173,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _loadRecords();
-    _loadStatistics();
-    // _startSync();
+    _refreshList();
   }
 
   @override
@@ -288,10 +286,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
           widget.flutterLocalNotificationsPlugin.show(0, '健康数据更新', displayName, details);
         },
         onSyncComplete: (newRecords, deletedIds) async {
-          await _loadRecords();
-          await _loadStatistics();
-          // 同步完成后滚动到顶部
-          _scrollToTop();
+          _refreshList();
 
           if (newRecords.isNotEmpty) {
             if (mounted) {
@@ -320,13 +315,6 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         });
       }
     }
-  }
-
-  void _applyFilters() {
-    _currentPage = 0;
-    _loadRecords();
-    // 应用过滤器时也滚动到顶部
-    _scrollToTop();
   }
 
   Future<void> _showFilterDialog() async {
@@ -358,21 +346,23 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         sourceName: _selectedSourceName,
       );
 
-      setState(() {
-        _applyFilters();
-      });
-
-      // 过滤器应用后滚动到顶部
-      _scrollToTop();
+      await _refreshList();
     }
   }
 
-  void _refreshList() {
+  Future<void> _refreshList() async {
     _currentPage = 0;
-    _loadRecords();
-    _loadStatistics();
+    await _loadRecords();
+    await _loadStatistics();
     // 滚动到列表顶部
     _scrollToTop();
+  }
+
+  Future<void> _loadMoreData() async {
+    if (_hasMoreData && !_isLoading) {
+      _currentPage++;
+      await _loadRecords();
+    }
   }
 
   void _scrollToTop() {
@@ -408,8 +398,8 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
         await _syncService.clearAllRecords();
         // 重置首次查询状态，下次同步时将重新获取完整数据
         await _syncService.resetFirstQueryState();
-        await _loadRecords();
-        await _loadStatistics();
+
+        await _refreshList();
         if (mounted) {
           IOSSnackBar.showSuccess(context, message: '所有记录已清空，下次同步将重新获取完整数据');
         }
@@ -439,8 +429,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
     if (confirmed == true) {
       try {
         await _syncService.deleteRecord(record.id);
-        await _loadRecords();
-        await _loadStatistics();
+        await _refreshList();
         if (mounted) {
           IOSSnackBar.showSuccess(context, message: '记录已删除');
         }
@@ -449,13 +438,6 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
           IOSSnackBar.showError(context, message: '删除失败: $e');
         }
       }
-    }
-  }
-
-  void _loadMoreData() {
-    if (_hasMoreData && !_isLoading) {
-      _currentPage++;
-      _loadRecords();
     }
   }
 
@@ -736,7 +718,7 @@ class _HealthDatabaseScreenState extends State<HealthDatabaseScreen> {
               backgroundColor: _isSyncing ? const Color(0xFF34C759) : const Color(0xFF007AFF),
               child: Icon(Icons.sync, color: Colors.white),
             ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 
