@@ -249,6 +249,11 @@ class HealthKitReporter {
     return await _methodChannel.invokeMethod('isAvailable');
   }
 
+  /// Verify whether Clinical Records is available.
+  static Future<bool> isClinicalRecordsAvailable() async {
+    return await _methodChannel.invokeMethod('isClinicalRecordsAvailable');
+  }
+
   /// Request write/read access to various [HealthKit] types.
   /// Provide [toRead] and/or [toWrite].
   /// If you want only read data, please set [toWrite] as an empty array.
@@ -256,6 +261,7 @@ class HealthKitReporter {
   /// - [ActivitySummaryType]
   /// - [CategoryType]
   /// - [CharacteristicType]
+  /// - [ClinicalType]
   /// - [CorrelationType]
   /// - [DocumentType]
   /// - [ElectrocardiogramType]
@@ -267,14 +273,6 @@ class HealthKitReporter {
     final arguments = {
       'toRead': toRead,
       'toWrite': toWrite,
-    };
-    return await _methodChannel.invokeMethod('requestAuthorization', arguments);
-  }
-
-  static Future<bool> requestClinicalRecordsAuthorization(List<String> toRead) async {
-    final arguments = {
-      'toRead': toRead,
-      'toWrite': [],
     };
     return await _methodChannel.invokeMethod('requestAuthorization', arguments);
   }

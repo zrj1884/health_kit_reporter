@@ -31,6 +31,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isAuthorized = false;
   bool _isClinicalAuthorized = false;
+  bool _isClinicalRecordsAvailable = false;
   late TabController _tabController;
 
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -43,11 +44,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     // 初始化通知插件
     const initializationSettingsIOS = DarwinInitializationSettings();
     const initSettings = InitializationSettings(iOS: initializationSettingsIOS);
-    _flutterLocalNotificationsPlugin.initialize(initSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) {
-      debugPrint(response.payload);
-      return;
-    });
+    _flutterLocalNotificationsPlugin.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        debugPrint(response.payload);
+        return;
+      },
+    );
 
     // 读取缓存的授权状态
     _loadCachedAuthorizationStatus();
@@ -74,11 +77,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         title: const Text(
           'HealthKit 数据管理器',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-            color: Colors.black,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.black),
         ),
         actions: [
           _buildAuthButton(
@@ -93,12 +92,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.shade200,
-                  width: 0.5,
-                ),
-              ),
+              border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 0.5)),
             ),
             child: TabBar(
               controller: _tabController,
@@ -122,28 +116,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           _LazyTabView(
             index: 0,
-            child: HealthDatabaseScreen(
-              flutterLocalNotificationsPlugin: _flutterLocalNotificationsPlugin,
-            ),
+            child: HealthDatabaseScreen(flutterLocalNotificationsPlugin: _flutterLocalNotificationsPlugin),
           ),
-          _LazyTabView(
-            index: 1,
-            child: const ReadScreen(),
-          ),
-          _LazyTabView(
-            index: 2,
-            child: const WriteScreen(),
-          ),
+          _LazyTabView(index: 1, child: const ReadScreen()),
+          _LazyTabView(index: 2, child: const WriteScreen()),
           _LazyTabView(
             index: 3,
-            child: ObserveScreen(
-              flutterLocalNotificationsPlugin: _flutterLocalNotificationsPlugin,
-            ),
+            child: ObserveScreen(flutterLocalNotificationsPlugin: _flutterLocalNotificationsPlugin),
           ),
-          _LazyTabView(
-            index: 4,
-            child: const DeleteScreen(),
-          ),
+          _LazyTabView(index: 4, child: const DeleteScreen()),
         ],
       ),
     );
@@ -156,10 +137,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           Icon(icon, size: 18),
           const SizedBox(width: 6),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 14),
-          ),
+          Text(text, style: const TextStyle(fontSize: 14)),
         ],
       ),
     );
@@ -176,23 +154,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onPressed,
+          onTap: _isClinicalRecordsAvailable ? onPressed : null,
           borderRadius: BorderRadius.circular(8),
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: isAuthorized ? const Color(0xFF34C759) : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isAuthorized ? const Color(0xFF34C759) : Colors.grey.shade300,
-                width: 1,
-              ),
+              border: Border.all(color: isAuthorized ? const Color(0xFF34C759) : Colors.grey.shade300, width: 1),
             ),
-            child: Icon(
-              icon,
-              size: 20,
-              color: isAuthorized ? Colors.white : Colors.grey.shade600,
-            ),
+            child: Icon(icon, size: 20, color: isAuthorized ? Colors.white : Colors.grey.shade600),
           ),
         ),
       ),
@@ -279,11 +250,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     try {
       final healthDataAuth = await AuthorizationService.getCachedHealthDataAuthorization();
       final clinicalRecordsAuth = await AuthorizationService.getCachedClinicalRecordsAuthorization();
+      final isClinicalRecordsAvailable = await HealthKitReporter.isClinicalRecordsAvailable();
 
       if (mounted) {
         setState(() {
           _isAuthorized = healthDataAuth;
-          _isClinicalAuthorized = clinicalRecordsAuth;
+          _isClinicalAuthorized = clinicalRecordsAuth && isClinicalRecordsAvailable;
+          _isClinicalRecordsAvailable = isClinicalRecordsAvailable;
         });
       }
     } catch (e) {
@@ -298,10 +271,7 @@ class _LazyTabView extends StatefulWidget {
   final int index;
   final Widget child;
 
-  const _LazyTabView({
-    required this.index,
-    required this.child,
-  });
+  const _LazyTabView({required this.index, required this.child});
 
   @override
   State<_LazyTabView> createState() => _LazyTabViewState();

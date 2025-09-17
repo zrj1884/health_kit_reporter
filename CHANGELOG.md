@@ -1,5 +1,10 @@
 # Versions
 
+## [2.3.4] - 09.17.2025
+
+* Upgrade iOS SDK HealthKitReporter[3.1.4].
+* Update example for clinical record read.
+
 ## [2.3.3] - 07.22.2025
 
 * Update example for new types. Upgrade iOS SDK HealthKitReporter[3.1.3]
@@ -93,7 +98,7 @@
 ## [1.1.0] - 25.02.2021
 
 * iOS 9.0 support
-* FIx with workout values
+* Fix with workout values
 * Fix with UUID of Samples
 
 ## [1.0.10] - 01.02.2021

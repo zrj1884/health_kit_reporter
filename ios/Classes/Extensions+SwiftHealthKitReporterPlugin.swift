@@ -13,6 +13,7 @@ import HealthKit
 extension SwiftHealthKitReporterPlugin {
     private enum Method: String {
         case isAvailable
+        case isClinicalRecordsAvailable
         case requestAuthorization
         case preferredUnits
         case characteristicsQuery
@@ -70,6 +71,8 @@ extension SwiftHealthKitReporterPlugin {
         switch method {
         case .isAvailable:
             result(HealthKitReporter.isHealthDataAvailable)
+        case .isClinicalRecordsAvailable:
+            isClinicalRecordsAvailable(reporter: reporter, result: result)
         case .requestAuthorization:
             guard let arguments = call.arguments as? [String: [String]] else {
                 throwNoArgumentsError(result: result)
@@ -302,6 +305,13 @@ extension SwiftHealthKitReporterPlugin {
 }
 // MARK: - Method Call methods
 extension SwiftHealthKitReporterPlugin {
+    private func isClinicalRecordsAvailable(
+        reporter: HealthKitReporter,
+        result: @escaping FlutterResult
+    ) {
+        result(reporter.manager.isClinicalRecordsAvailable)
+    }
+
     private func requestAuthorization(
         reporter: HealthKitReporter,
         arguments: [String: [String]],
